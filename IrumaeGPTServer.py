@@ -10,16 +10,15 @@ from typing import List
 import ast
 from model.User import User
 from model.User import Item
-from api.userAPI import userRouter
-from api.memoryCrudAPI import memoryRouter
+from api.user_memory_controller import userRouter
 
-#uvicorn RAGServer:app --reload --host=0.0.0.0 --port=8800
+
+#uvicorn IrumaeGPTServer:app --reload --host=0.0.0.0 --port=8800
 #python -m uvicorn FastApi:app --reload
 
 app=FastAPI()
 
 app.include_router(userRouter)
-app.include_router(memoryRouter)
 
 client=chromadb.PersistentClient()
 
