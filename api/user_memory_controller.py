@@ -11,7 +11,7 @@ embed_model=modelUpload.model_upload()
 
 userRouter = APIRouter()
 
-@userRouter.post("/make/collection")
+@userRouter.post("/user/make/collection")
 async def make_collection(user: User):
     client.create_collection(name=user.userId, metadata={"hnsw:space":"cosine"})
     return 200; 
@@ -39,7 +39,7 @@ async def get_user_memory(item : Item):
         id=str(1)
     
     metadatas=[
-        {"userId":userId,"scenarioId":scenarioId,"importance":importance, "observation" : observation}
+        {"id": id, "userId":userId,"scenarioId":scenarioId,"importance":importance, "observation" : observation}
     ]
     
     embedding_word = [observation]
@@ -54,23 +54,48 @@ async def get_user_memory(item : Item):
     )
     
     #쿼리 날리기
+    result = query_vector_db(collection,query)
+
+    if(result!=410):
+    #답변 필터링
+        result_list = (result["metadatas"])[0] #유사도 순서대로 정렬된 데이터
+        
+        result_list = filter_by_importance(result_list)
+        
+        result_list = filter_by_id(result_list)
+        
+        return result_list
+    
+    return 
+    
+    
+def filter_by_importance(result_list):
+    return result_list
+    
+def filter_by_id(result_list):
+    result_list=sorted(result_list, key=lambda x: int(x["id"]),reverse=True)
+    return result_list
+
+def query_vector_db(collection,query):
     n_result = collection.count()
     if(n_result==0):
         return 410
+    elif(n_result==1):
+        n_result=1
+    else:
+        n_result=int(math.log2(n_result))
     query_embedding_word=[query]
     query_embedding = embed_model.encode(query_embedding_word)
     query_embedding=query_embedding.tolist()
     
-    print(int(math.log2(n_result)))
-    
     result=collection.query(
         query_embeddings=query_embedding[0],
-        n_results=int(math.log2(n_result)),
+        n_results=n_result,
     )
-
-    return result["metadatas"]
-    #답변 필터링
     
+    return result
+
+
 #id 최대값을 int로 반환
 def get_ids_max(collection):
     n_result=collection.count()
@@ -94,4 +119,4 @@ def get_last_sceneId(collection):
         result=collection.get(ids=ids)
         scenarioId = ((result["metadatas"])[0])['scenarioId']
         return scenarioId
-    return
+    return "0"
