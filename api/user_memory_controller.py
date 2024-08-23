@@ -4,6 +4,7 @@ from model.User import User
 from model.User import Item
 import embedding_model.modelUpload as modelUpload
 import math
+import numpy as np
 
 client=chromadb.PersistentClient()
 
@@ -70,7 +71,18 @@ async def get_user_memory(item : Item):
     
     
 def filter_by_importance(result_list):
-    return result_list
+    # importances=[0.1,0.1,0.99,0.98,0.97,0.95,0.89,0.99] #Test
+    importances=[]
+    valid_list=[]
+    for item in result_list:
+        importances.append(item['importance'])
+    Q1,Q3=map(float , np.percentile(importances,[25,75]))
+    IQR=Q3-Q1
+    standard_line=Q1-IQR*1.5
+    for item in result_list:
+        if(item['importance']>standard_line):
+            valid_list.append(item)
+    return valid_list
     
 def filter_by_id(result_list):
     result_list=sorted(result_list, key=lambda x: int(x["id"]),reverse=True)
