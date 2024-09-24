@@ -65,6 +65,8 @@ async def get_user_memory(item : Item):
         
         result_list = filter_by_id(result_list)
         
+        #같은 시나리오 전부 가져오기
+        
         return result_list
     
     return 

@@ -11,7 +11,7 @@ import ast
 from model.User import User
 from model.User import Item
 from api.user_memory_controller import userRouter
-
+from api.episodeManager import episodeRouter
 
 #uvicorn IrumaeGPTServer:app --reload --host=0.0.0.0 --port=8800
 #python -m uvicorn FastApi:app --reload
@@ -19,6 +19,7 @@ from api.user_memory_controller import userRouter
 app=FastAPI()
 
 app.include_router(userRouter)
+app.include_router(episodeRouter)
 
 client=chromadb.PersistentClient()
 
