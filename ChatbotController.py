@@ -46,7 +46,7 @@ async def inputUserQuery(item : Item):
         isContextChanged = await LLMController.checkContextChange(query, memories)
         if isContextChanged:
             print("query: " + query + "\nmemories: " + memories +"\n\n")
-            updateAIChatbot(userId)
+            await updateAIChatbot(userId)
     
     # Save query to short term memory
     episodeManager.saveQueryInShortTermMemory(userId, query)
