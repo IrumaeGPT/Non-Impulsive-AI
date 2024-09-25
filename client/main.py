@@ -19,7 +19,7 @@ def initialize(userId):
     dic = {
 		"userId" : userId,
 	}
-    r = requests.post(base_url, data=json.dumps(dic))
+    r = requests.post(url, data=json.dumps(dic))
     return r.json()
 
 def chat(userId, query, isTest, checkContext):
@@ -30,7 +30,14 @@ def chat(userId, query, isTest, checkContext):
         "isTest" : isTest,
         "checkContext" : checkContext
 	}
+    r = requests.post(url, data=json.dumps(dic))
+    return r.json()
 
 
 if __name__ == "__main__":
-
+    userId = "test1"
+    initialize(userId)
+    with open("data/sample.txt", 'r', encoding='utf-8') as file:
+        for line in file:
+            line = line.strip()
+            chat(userId, line, True, True if line[0] == "B" else False)
