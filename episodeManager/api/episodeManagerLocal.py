@@ -4,7 +4,6 @@
 
 '''
 
-from fastapi import APIRouter
 import chromadb
 from model.episodeItem import episodeItem
 from model.queryItem import queryItem
@@ -15,12 +14,12 @@ client=chromadb.PersistentClient()
 
 embed_model=modelUpload.model_upload()
 
-episodeRouter = APIRouter()
+def makeCollection(userId):
+    client.create_collection(name=userId+"_episode", metadata={"hnsw:space":"cosine"})
+    client.create_collection(name=userId+"_buffer", metadata={"hnsw:space":"cosine"})
+    return 200; 
 
-@episodeRouter.post("/episode/add")
-async def saveQueryInShortTermMemory(episodeItem: episodeItem):
-    userId = episodeItem.userId
-    observation = episodeItem.observation
+def saveQueryInShortTermMemory(userId, observation):
     
     collection=client.get_collection(name=userId+"_buffer")
     
@@ -45,8 +44,7 @@ async def saveQueryInShortTermMemory(episodeItem: episodeItem):
     
     return metadatas
 
-@episodeRouter.get("/episode/get/all/{userId}")
-async def getShortTermMemorys(userId : str):
+def getShortTermMemorys(userId):
     collection=client.get_collection(name=userId+"_buffer")
     n_result = collection.count()
     resultString=""
@@ -72,13 +70,9 @@ async def getShortTermMemorys(userId : str):
         
     return resultString
     
-
-@episodeRouter.patch("/episode/update/")
-async def updateEpisodeMemory(updateEpisodeItem : updateEpisodeItem):
+def updateEpisodeMemory(userId, summary):
     # epiosdeEmbedding=[]
     
-    # userId = updateEpisodeItem.userId
-    # summary = updateEpisodeItem.summary
     # collection=client.get_collection(name=userId+"_episode")
     
     # #Episode 다 빼고
@@ -96,13 +90,12 @@ async def updateEpisodeMemory(updateEpisodeItem : updateEpisodeItem):
     #     n_results=n_result,
     # )
     
-    #클러스터링 하고
-    #클러스터 번호 업데이트
+    # #클러스터링 하고
+    # #클러스터 번호 업데이트
 
     return
     
-@episodeRouter.post("/episode/retrieve")
-async def getEpisode(queryitem : queryItem):
+def getEpisode(userId, querys):
 #     episodeMemory=[]
     
 #     collection=client.get_collection(name=userId)
@@ -133,13 +126,9 @@ async def getEpisode(queryitem : queryItem):
     
     
     ## 버전 2
-    queryStringList=queryitem.querys
-    userId=queryitem.userId
     
     collection=client.get_collection(name=userId+"_episode")
     
-    
-     
     return 
 
     #id 최대값을 int로 반환
