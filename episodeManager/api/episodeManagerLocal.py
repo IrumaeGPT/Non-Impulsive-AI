@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+
 import chromadb
 from model.episodeItem import episodeItem
 from model.queryItem import queryItem
@@ -10,8 +10,6 @@ from sklearn.cluster import KMeans
 client=chromadb.PersistentClient()
 
 embed_model=modelUpload.model_upload()
-
-episodeRouter = APIRouter()
 
 cluster = []
 
@@ -38,8 +36,7 @@ def updateCluster(cluster_result, embeddings):
     
     return
             
-@episodeRouter.post("/episode/add")
-async def saveQueryInShortTermMemory(episodeItem: episodeItem):
+def saveQueryInShortTermMemory(userId, observation):
     userId = episodeItem.userId
     observation = episodeItem.observation
     
@@ -66,8 +63,8 @@ async def saveQueryInShortTermMemory(episodeItem: episodeItem):
     
     return metadatas
 
-@episodeRouter.get("/episode/get/all/{userId}")
-async def getShortTermMemorys(userId : str):
+
+def getShortTermMemorys(userId):
     collection=client.get_collection(name=userId+"_buffer")
     n_result = collection.count()
     resultString=""
@@ -94,8 +91,7 @@ async def getShortTermMemorys(userId : str):
     return resultString
     
 
-@episodeRouter.patch("/episode/update")
-async def updateEpisodeMemory(updateEpisodeItem : updateEpisodeItem):
+def updateEpisodeMemory(userId, summary):
     epiosdeEmbedding=[]
     
     userId = updateEpisodeItem.userId
@@ -155,7 +151,7 @@ async def updateEpisodeMemory(updateEpisodeItem : updateEpisodeItem):
     print(epiosdeEmbedding[0][0]-epiosdeEmbedding[1][0])
     
     # K-Means 클러스터링
-    k = 4  # 클러스터 개수
+    k = 2  # 클러스터 개수
     kmeans = KMeans(n_clusters=k)
     kmeans.fit(epiosdeEmbedding)
 
@@ -181,8 +177,6 @@ async def updateEpisodeMemory(updateEpisodeItem : updateEpisodeItem):
             {"id": id, "userId":userId, "summary" : summary, "cluster": int(cluster_labels[-1])}
     ]
     
-    print("zzz")
-    
     result = collection.add(
         ids=id,
         metadatas=metadatas,
@@ -201,8 +195,7 @@ async def updateEpisodeMemory(updateEpisodeItem : updateEpisodeItem):
 
     return (result["metadatas"])[0]
     
-@episodeRouter.post("/episode/retrieve")
-async def getEpisode(queryitem : queryItem):
+def getEpisode(userId,query):
 #     episodeMemory=[]
     
 #     collection=client.get_collection(name=userId)
@@ -233,9 +226,6 @@ async def getEpisode(queryitem : queryItem):
     
     
     ## 버전 2
-    query=queryitem.query
-    userId=queryitem.userId
-    
     collection=client.get_collection(name=userId+"_episode")
     n_result = collection.count()
     result_response=[]
