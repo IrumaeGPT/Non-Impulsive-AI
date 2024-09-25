@@ -1,3 +1,9 @@
+import pandas as pd
+import re
+
+pd.set_option('display.max_rows', None)
+pd.set_option('display.max_columns', None)
+
 def split_and_format_text():
     with open("data/sample.txt", 'r', encoding='utf-8') as file:
         text = file.read()
@@ -20,5 +26,5 @@ def get_data():
     #print(df.loc[2]['user_text_all'])
     #persona_text_all.txt
 
-    with open("persona_text_all.txt", "w") as file:
-        file.write(df.loc[2]['persona_text_all'])
+    with open("user_text_all.txt", "w") as file:
+        file.write(df.loc[148]['user_text_all'])

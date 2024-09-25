@@ -1,5 +1,3 @@
-import pandas as pd
-import re
 import requests, json
 import urllib.parse
 import ast
@@ -8,9 +6,6 @@ import ast
 from util import get_data, split_and_format_text
 
 base_url = "http://127.0.0.1:8000/"
-
-pd.set_option('display.max_rows', None)
-pd.set_option('display.max_columns', None)
 
 
 def initialize(userId):
@@ -34,10 +29,13 @@ def chat(userId, query, isTest, checkContext):
     return r.json()
 
 
-if __name__ == "__main__":
+def main():
     userId = "test1"
     initialize(userId)
     with open("data/sample.txt", 'r', encoding='utf-8') as file:
         for line in file:
             line = line.strip()
             chat(userId, line, True, True if line[0] == "B" else False)
+
+if __name__ == "__main__":
+    get_data()
