@@ -1,6 +1,7 @@
 import requests, json
 import urllib.parse
 import ast
+import sys
 
 # Local
 from util import get_data, split_and_format_text
@@ -38,4 +39,4 @@ def main():
             chat(userId, line, True, True if line[0] == "B" else False)
 
 if __name__ == "__main__":
-    get_data()
+    main()

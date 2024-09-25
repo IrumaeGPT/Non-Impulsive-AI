@@ -1,5 +1,5 @@
-from openaikey import client
-import prompt
+from .openaikey import client
+from . import prompt
 
 
 # Return true if context is changed

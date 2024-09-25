@@ -1,9 +1,8 @@
-
 import chromadb
-from model.episodeItem import episodeItem
-from model.queryItem import queryItem
-from model.updateEpisodeItem import updateEpisodeItem
-import embedding_model.modelUpload as modelUpload
+from ..model.episodeItem import episodeItem
+from ..model.queryItem import queryItem
+from ..model.updateEpisodeItem import updateEpisodeItem
+from ..embedding_model import modelUpload as modelUpload
 import numpy as np
 from sklearn.cluster import KMeans
 
