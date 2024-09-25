@@ -38,30 +38,30 @@ async def inputUserQuery(userId : str, query : str, isTest : bool, checkContext 
         return {"status": "success", "response":"none"}
 
     # Retrieve episodes about query and choose topics
-    episodes = episodeManager.retrieveEpisode(userId, query)
+    episodes = await episodeManager.retrieveEpisode(userId, query)
     retrievedEpisodes[query] = episodes
-    topics = LLMController.ChooseTopicToTalk(query, memories, episodes)
+    topics = await LLMController.ChooseTopicToTalk(query, memories, episodes)
     
     # Retrieve episodes about each topic
     for topic in topics:
-        episodes = episodeManager.retrieveEpisodes(userId, topic)
+        episodes = await episodeManager.retrieveEpisodes(userId, topic)
         retrievedEpisodes[topic] = episodes
 
     # Generate response and save it to short term memory
-    response = LLMController.generateResponse(query, memories, topics, retrievedEpisodes)
-    episodeManager.saveQueryInShortTermMemory(userId, response)
+    response = await LLMController.generateResponse(query, memories, topics, retrievedEpisodes)
+    await episodeManager.saveQueryInShortTermMemory(userId, response)
     
     return {"status": "success", "response": response, "message": "get response from chatbot"}
 
 # finish chat
 @app.post("/finish")
 async def finishTalking(userId : str):
-    updateAIChatbot(userId)
+    await updateAIChatbot(userId)
     return {"status": "success", "message": "finished talking with chatbot"}
 
 # Update episode of the AI Chatbot
 async def updateAIChatbot(userId : str):
-    memories = episodeManager.getShortTermMemories(userId)
-    episode = LLMController.summarize(memories)
-    episodeManager.updateEpisodeMemory(userId, episode)
+    memories = await episodeManager.getShortTermMemories(userId)
+    episode = await LLMController.summarize(memories)
+    await episodeManager.updateEpisodeMemory(userId, episode)
     return
