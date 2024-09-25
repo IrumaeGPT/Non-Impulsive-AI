@@ -38,11 +38,14 @@ async def inputUserQuery(item : Item):
     # Get previous dialouge
     retrievedEpisodes = dict()
     memories = episodeManager.getShortTermMemories(userId)
+    
+    
 
     # Check context and update AI
     if checkContext and memories:
         isContextChanged = await LLMController.checkContextChange(query, memories)
         if isContextChanged:
+            print("query: " + query + "\nmemories: " + memories +"\n\n")
             updateAIChatbot(userId)
     
     # Save query to short term memory
@@ -70,8 +73,8 @@ async def inputUserQuery(item : Item):
 
 # finish chat
 @app.post("/finish")
-async def finishTalking(userId : str):
-    await updateAIChatbot(userId)
+async def finishTalking(user: User):
+    await updateAIChatbot(user.userId)
     return {"status": "success", "message": "finished talking with chatbot"}
 
 # Update episode of the AI Chatbot
