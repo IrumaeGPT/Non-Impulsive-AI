@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from LLMController import LLMController
 import episodeManager.api.episodeManagerLocal as episodeManager
-
+from pydantic import BaseModel
 # fastAPI server activate code
 # uvicorn ChatbotController:app --reload
 
@@ -10,19 +10,34 @@ import episodeManager.api.episodeManagerLocal as episodeManager
 
 app = FastAPI()
 
+class Item(BaseModel):
+    userId : str
+    query : str
+    isTest : bool
+    checkContext : bool
+
+class User(BaseModel):
+    userId : str
+
 # initialize user id
 @app.post("/initialize")
-async def initialize(userId : str):
-    await episodeManager.makeCollection(userId)
+async def initialize(user: User):
+    userId = user.userId
+    episodeManager.make_collection(userId)
     return {"status": "success", "message": "initialized user"}
 
 # input user query and get response
 @app.post("/chat")
-async def inputUserQuery(userId : str, query : str, isTest : bool, checkContext : bool):
+async def inputUserQuery(item : Item):
 
+    userId = item.userId
+    query = item.query
+    isTest = item.isTest
+    checkContext = item.checkContext
+    
     # Get previous dialouge
     retrievedEpisodes = dict()
-    memories = await episodeManager.getShortTermMemories(userId)
+    memories = episodeManager.getShortTermMemories(userId)
 
     # Check context and update AI
     if checkContext and memories:
@@ -31,25 +46,25 @@ async def inputUserQuery(userId : str, query : str, isTest : bool, checkContext 
             updateAIChatbot(userId)
     
     # Save query to short term memory
-    await episodeManager.saveQueryInShortTermMemory(userId, query)
+    episodeManager.saveQueryInShortTermMemory(userId, query)
 
     # When testing, end function here
     if isTest:
         return {"status": "success", "response":"none"}
 
     # Retrieve episodes about query and choose topics
-    episodes = await episodeManager.retrieveEpisode(userId, query)
+    episodes =  episodeManager.retrieveEpisodes(userId, query)
     retrievedEpisodes[query] = episodes
-    topics = await LLMController.ChooseTopicToTalk(query, memories, episodes)
+    topics =  await LLMController.ChooseTopicToTalk(query, memories, episodes)
     
     # Retrieve episodes about each topic
     for topic in topics:
-        episodes = await episodeManager.retrieveEpisodes(userId, topic)
+        episodes =  episodeManager.retrieveEpisodes(userId, topic)
         retrievedEpisodes[topic] = episodes
 
     # Generate response and save it to short term memory
     response = await LLMController.generateResponse(query, memories, topics, retrievedEpisodes)
-    await episodeManager.saveQueryInShortTermMemory(userId, response)
+    episodeManager.saveQueryInShortTermMemory(userId, response)
     
     return {"status": "success", "response": response, "message": "get response from chatbot"}
 
@@ -61,7 +76,7 @@ async def finishTalking(userId : str):
 
 # Update episode of the AI Chatbot
 async def updateAIChatbot(userId : str):
-    memories = await episodeManager.getShortTermMemories(userId)
+    memories = episodeManager.getShortTermMemories(userId)
     episode = await LLMController.summarize(memories)
-    await episodeManager.updateEpisodeMemory(userId, episode)
+    episodeManager.updateEpisodeMemory(userId, episode)
     return

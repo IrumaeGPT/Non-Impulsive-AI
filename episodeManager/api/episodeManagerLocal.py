@@ -12,6 +12,14 @@ embed_model=modelUpload.model_upload()
 
 cluster = []
 
+def make_collection(userId):
+    print(userId)
+    print(client)
+    client.create_collection(name=userId+"_episode", metadata={"hnsw:space":"cosine"})
+    client.create_collection(name=userId+"_buffer", metadata={"hnsw:space":"cosine"})
+    print("Sucess")
+    return 200; 
+
 def updateCluster(cluster_result, embeddings):
     global cluster
     cluster = [{"clusterId":0, "sum": [0 for _ in range(768)],"count":0, "avg":[0 for _ in range(768)]}]
@@ -36,9 +44,6 @@ def updateCluster(cluster_result, embeddings):
     return
             
 def saveQueryInShortTermMemory(userId, observation):
-    userId = episodeItem.userId
-    observation = episodeItem.observation
-    
     collection=client.get_collection(name=userId+"_buffer")
     
     if(collection.count()!=0):
@@ -63,7 +68,7 @@ def saveQueryInShortTermMemory(userId, observation):
     return metadatas
 
 
-def getShortTermMemorys(userId):
+def getShortTermMemories(userId):
     collection=client.get_collection(name=userId+"_buffer")
     n_result = collection.count()
     resultString=""
@@ -194,7 +199,7 @@ def updateEpisodeMemory(userId, summary):
 
     return (result["metadatas"])[0]
     
-def getEpisode(userId,query):
+def retrieveEpisodes(userId,query):
 #     episodeMemory=[]
     
 #     collection=client.get_collection(name=userId)

@@ -1,7 +1,6 @@
 from .openaikey import client
 from . import prompt
 
-
 # Return true if context is changed
 async def checkContextChange(query : str, memories : str) : 
     response = client.chat.completions.create(

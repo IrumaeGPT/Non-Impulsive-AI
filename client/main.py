@@ -6,7 +6,7 @@ import sys
 # Local
 from util import get_data, split_and_format_text
 
-base_url = "http://127.0.0.1:8000/"
+base_url = "http://127.0.0.1:8800/"
 
 
 def initialize(userId):
@@ -15,7 +15,7 @@ def initialize(userId):
     dic = {
 		"userId" : userId,
 	}
-    r = requests.post(url, data=json.dumps(dic))
+    r = requests.post(url, json=dic)
     return r.json()
 
 def chat(userId, query, isTest, checkContext):
@@ -31,7 +31,7 @@ def chat(userId, query, isTest, checkContext):
 
 
 def main():
-    userId = "test1"
+    userId = "test2"
     initialize(userId)
     with open("data/sample.txt", 'r', encoding='utf-8') as file:
         for line in file:
