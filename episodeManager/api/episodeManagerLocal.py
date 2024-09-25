@@ -15,8 +15,8 @@ cluster = []
 def make_collection(userId):
     print(userId)
     print(client)
-    client.create_collection(name=userId+"_episode", metadata={"hnsw:space":"cosine"})
-    client.create_collection(name=userId+"_buffer", metadata={"hnsw:space":"cosine"})
+    client.create_collection(name=userId+"_episode", metadata={"hnsw:space":"cosine","hnsw:M": 16})
+    client.create_collection(name=userId+"_buffer", metadata={"hnsw:space":"cosine","hnsw:M": 16})
     print("Sucess")
     return 200; 
 
@@ -65,6 +65,7 @@ def saveQueryInShortTermMemory(userId, observation):
         embeddings=embeddings
     )
     
+    print(metadatas)
     return metadatas
 
 
