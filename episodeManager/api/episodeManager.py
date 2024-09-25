@@ -7,6 +7,8 @@
 from fastapi import APIRouter
 import chromadb
 from model.episodeItem import episodeItem
+from model.queryItem import queryItem
+from model.updateEpisodeItem import updateEpisodeItem
 import embedding_model.modelUpload as modelUpload
 
 client=chromadb.PersistentClient()
@@ -16,14 +18,11 @@ embed_model=modelUpload.model_upload()
 episodeRouter = APIRouter()
 
 @episodeRouter.post("/episode/add")
-async def addEpisodeMemory(episodeItem: episodeItem):
-    if(episodeItem.isContextSwitched):
-        k=3    #문맥 변환, 그래프 및 DB 업데이트
+async def saveQueryInShortTermMemory(episodeItem: episodeItem):
     userId = episodeItem.userId
     observation = episodeItem.observation
-    episodeId = episodeItem.episodeId
     
-    collection=client.get_collection(name=userId)
+    collection=client.get_collection(name=userId+"_buffer")
     
     if(collection.count()!=0):
         id=str(get_ids_max(collection)+1)
@@ -31,7 +30,7 @@ async def addEpisodeMemory(episodeItem: episodeItem):
         id=str(1)
         
     metadatas=[
-        {"id": id, "userId":userId,"episodeId":episodeId,"observation" : observation}
+        {"id": id, "userId":userId, "observation" : observation}
     ]
     
     embedding_word = [" "]
@@ -45,29 +44,19 @@ async def addEpisodeMemory(episodeItem: episodeItem):
     )
     
     return metadatas
-    
-@episodeRouter.get("/episode/get/{userId}/{episodeId}")
-async def getEpisodeById(episodeId : int, userId : str):
-    episodeMemory=[]
-    
-    collection=client.get_collection(name=userId)
-    
-    result = query_vector_db(collection," ")
-    metadatas=(result["metadatas"])[0]
-    
-    for i in range(len(metadatas)):
-        if(int((metadatas[i])["episodeId"])==episodeId):
-            episodeMemory.append(metadatas[i])
-            
-    return episodeMemory
-    
-def query_vector_db(collection,query):
+
+@episodeRouter.get("/episode/get/all/{userId}")
+async def getShortTermMemorys(userId : str):
+    collection=client.get_collection(name=userId+"_buffer")
     n_result = collection.count()
+    resultString=""
+    
     if(n_result==0):
         return 410
     elif(n_result==1):
         n_result=1
-    query_embedding_word=[query]
+        
+    query_embedding_word=[" "]
     query_embedding = embed_model.encode(query_embedding_word)
     query_embedding=query_embedding.tolist()
     
@@ -76,6 +65,81 @@ def query_vector_db(collection,query):
         n_results=n_result,
     )
     
+    metadatas = (result["metadatas"])[0]
+    for item in metadatas:
+        resultString+=(item["observation"])
+        resultString+="\n"   
+        
+    return resultString
+    
+
+@episodeRouter.patch("/episode/update/")
+async def updateEpisodeMemory(updateEpisodeItem : updateEpisodeItem):
+    epiosdeEmbedding=[]
+    
+    userId = updateEpisodeItem.userId
+    summary = updateEpisodeItem.summary
+    collection=client.get_collection(name=userId+"_episode")
+    
+    #Episode 다 빼고
+    n_result = collection.count()
+    if(n_result==0):
+        #최초 클러스터 형성하기
+        _=3
+        return
+    query_embedding_word=[" "]
+    query_embedding = embed_model.encode(query_embedding_word)
+    query_embedding=query_embedding.tolist()
+    
+    result=collection.query(
+        query_embeddings=query_embedding[0],
+        n_results=n_result,
+    )
+    
+    #클러스터링 하고
+    #클러스터 번호 업데이트
+
+    return
+    
+@episodeRouter.post("/episode/retrieve")
+async def getEpisode(queryitem : queryItem):
+#     episodeMemory=[]
+    
+#     collection=client.get_collection(name=userId)
+    
+#     result = query_vector_db(collection," ")
+#     metadatas=(result["metadatas"])[0]
+    
+#     for i in range(len(metadatas)):
+#         if(int((metadatas[i])["episodeId"])==episodeId):
+#             episodeMemory.append(metadatas[i])
+            
+#     return episodeMemory
+    
+# def query_vector_db(collection,query):
+#     n_result = collection.count()
+#     if(n_result==0):
+#         return 410
+#     elif(n_result==1):
+#         n_result=1
+#     query_embedding_word=[query]
+#     query_embedding = embed_model.encode(query_embedding_word)
+#     query_embedding=query_embedding.tolist()
+    
+#     result=collection.query(
+#         query_embeddings=query_embedding[0],
+#         n_results=n_result,
+#     )
+    
+    
+    ## 버전 2
+    queryStringList=queryitem.querys
+    userId=queryitem.userId
+    
+    collection=client.get_collection(name=userId+"_episode")
+    
+    
+     
     return result
 
     #id 최대값을 int로 반환

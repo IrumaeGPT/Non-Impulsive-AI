@@ -14,7 +14,8 @@ userRouter = APIRouter()
 
 @userRouter.post("/user/make/collection")
 async def make_collection(user: User):
-    client.create_collection(name=user.userId, metadata={"hnsw:space":"cosine"})
+    client.create_collection(name=user.userId+"_episode", metadata={"hnsw:space":"cosine"})
+    client.create_collection(name=user.userId+"_buffer", metadata={"hnsw:space":"cosine"})
     return 200; 
 
 @userRouter.post("/user/query")
