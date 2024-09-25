@@ -13,7 +13,7 @@ app = FastAPI()
 # initialize user id
 @app.post("/initialize")
 async def initialize(userId : str):
-    episodeManager.makeCollection(userId)
+    await episodeManager.makeCollection(userId)
     return {"status": "success", "message": "initialized user"}
 
 # input user query and get response
@@ -25,7 +25,7 @@ async def inputUserQuery(userId : str, query : str, isTest : bool, checkContext 
     memories = await episodeManager.getShortTermMemories(userId)
 
     # Check context and update AI
-    if checkContext:
+    if checkContext and memories:
         isContextChanged = await LLMController.checkContextChange(query, memories)
         if isContextChanged:
             updateAIChatbot(userId)
