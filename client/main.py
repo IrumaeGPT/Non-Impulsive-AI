@@ -31,9 +31,9 @@ def chat(userId, query, isTest, checkContext):
 
 
 def main():
-    userId = "test20"
+    userId = "test002"
     initialize(userId)
-    with open("data/sample2.txt", 'r', encoding='utf-8') as file:
+    with open("data/sample.txt", 'r', encoding='utf-8') as file:
         for line in file:
             line = line.strip()
             chat(userId, line, True, True if line[0] == "B" else False)
