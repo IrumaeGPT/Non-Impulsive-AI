@@ -98,9 +98,7 @@ def getShortTermMemories(userId):
 
 def updateEpisodeMemory(userId, summary):
     epiosdeEmbedding=[]
-    
-    userId = updateEpisodeItem.userId
-    summary = updateEpisodeItem.summary
+
     collection=client.get_collection(name=userId+"_episode")
     
     #Episode 다 빼고
@@ -194,7 +192,6 @@ def updateEpisodeMemory(userId, summary):
     )
     
     updateCluster(cluster_labels , epiosdeEmbedding)
-    print(cluster)
     #클러스터링 하고
     #클러스터 번호 업데이트
 
