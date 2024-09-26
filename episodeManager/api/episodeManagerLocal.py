@@ -115,7 +115,6 @@ def updateEpisodeMemory(userId, summary):
         summary_embedding_word=[summary]
         summary_embedding = embed_model.encode(summary_embedding_word)
         summary_embedding=summary_embedding.tolist()
-        print(summary_embedding)
         
         collection.add(
             ids=id,
@@ -124,7 +123,6 @@ def updateEpisodeMemory(userId, summary):
         )
         
         updateCluster([0], summary_embedding)
-        print(cluster)
     
         delete_buffer_memory(collection_buffer)
         return 
@@ -193,7 +191,6 @@ def updateEpisodeMemory(userId, summary):
     )
     
     updateCluster(cluster_labels , epiosdeEmbedding)
-    print(cluster)
     
     delete_buffer_memory(collection_buffer)
     #클러스터링 하고
