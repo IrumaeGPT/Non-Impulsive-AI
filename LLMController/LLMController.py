@@ -12,7 +12,6 @@ async def checkContextChange(query : str, memories : str) :
             {"role": "user", "content":"<이전 대화 내용>\n" + memories + "\n\n<입력된 문장>" + query + "\n\n<결과>"},
     ])
     result = response.choices[0].message.content
-    print(result)
     if "변화" in result:
         return True
     elif "동일" in result:
