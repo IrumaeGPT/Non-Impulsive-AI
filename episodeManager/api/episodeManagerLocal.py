@@ -15,8 +15,8 @@ cluster = []
 def make_collection(userId):
     print(userId)
     print(client)
-    client.create_collection(name=userId+"_episode", metadata={"hnsw:space":"cosine","hnsw:M": 16})
-    client.create_collection(name=userId+"_buffer", metadata={"hnsw:space":"cosine","hnsw:M": 16})
+    client.create_collection(name=userId+"_episode", metadata={"hnsw:space":"cosine","hnsw:M": 1024})
+    client.create_collection(name=userId+"_buffer", metadata={"hnsw:space":"cosine","hnsw:M": 1024})
     print("Sucess")
     return 200; 
 
@@ -99,11 +99,9 @@ def getShortTermMemories(userId):
 
 def updateEpisodeMemory(userId, summary):
     epiosdeEmbedding=[]
-    
-    userId = updateEpisodeItem.userId
-    summary = updateEpisodeItem.summary
+
     collection=client.get_collection(name=userId+"_episode")
-    
+    collection_buffer = client.get_collection(name=userId+"_buffer")
     #Episode 다 빼고
     n_result = collection.count()
     if(n_result==0):
@@ -129,6 +127,7 @@ def updateEpisodeMemory(userId, summary):
         updateCluster([0], summary_embedding)
         print(cluster)
     
+        delete_buffer_memory(collection_buffer)
         return 
     
     query_embedding_word=[" "]
@@ -196,11 +195,22 @@ def updateEpisodeMemory(userId, summary):
     
     updateCluster(cluster_labels , epiosdeEmbedding)
     print(cluster)
+    
+    delete_buffer_memory(collection_buffer)
     #클러스터링 하고
     #클러스터 번호 업데이트
 
     return (result["metadatas"])[0]
-    
+
+def delete_buffer_memory(collection):
+    ids=[]
+    for i in range(1,get_ids_max(collection)+1):
+        ids.append(str(i))
+    print("버퍼 삭제 리스트:")
+    print(ids)
+    collection.delete(ids=ids)
+    return
+
 def retrieveEpisodes(userId,query):
 #     episodeMemory=[]
     
