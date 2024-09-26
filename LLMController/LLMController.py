@@ -23,7 +23,7 @@ async def checkContextChange(query : str, memories : str) :
 # Summarize input memories
 async def summarize(memories : str):
     response = client.chat.completions.create(
-    model="gpt-4o",
+    model="gpt-4o-mini",
     temperature=0.5,
     top_p=0.5,
     messages=[

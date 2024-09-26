@@ -43,7 +43,7 @@ def updateCluster(cluster_result, embeddings):
     
     return
             
-async def saveQueryInShortTermMemory(userId, observation):
+def saveQueryInShortTermMemory(userId, observation):
     collection=client.get_collection(name=userId+"_buffer")
     n_result = collection.count()
     if(collection.count()!=0):
@@ -82,7 +82,7 @@ async def saveQueryInShortTermMemory(userId, observation):
     return metadatas
 
 
-async def getShortTermMemories(userId):
+def getShortTermMemories(userId):
     collection=client.get_collection(name=userId+"_buffer")
     n_result = collection.count()
     resultString=""
