@@ -65,7 +65,6 @@ def saveQueryInShortTermMemory(userId, observation):
         embeddings=embeddings
     )
     
-    print(metadatas)
     return metadatas
 
 
