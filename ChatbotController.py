@@ -55,7 +55,6 @@ async def inputUserQuery(item : Item):
 
     # Retrieve episodes about query and choose topics
     episodes =  episodeManager.retrieveEpisodes(userId, query)
-
     retrievedEpisodes[query] = episodes
     topics =  await LLMController.chooseTopicToTalk(query, memories, episodes)
     
