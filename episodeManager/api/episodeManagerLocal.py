@@ -59,14 +59,15 @@ def saveQueryInShortTermMemory(userId, observation):
     embeddings = embed_model.encode(embedding_word)
     embeddings = embeddings.tolist()
     
-    print("생성됨: ")
-    print(metadatas)
+    # print("생성됨: ")
+    # print(metadatas)
     
     collection.add(
-        ids=id,
+        ids=[id],
         metadatas=metadatas,
         embeddings=embeddings
     )
+    
     
     query_embedding_word=[" "]
     query_embedding = embed_model.encode(query_embedding_word)
@@ -77,8 +78,8 @@ def saveQueryInShortTermMemory(userId, observation):
         n_results=n_result+1,
     )
     
-    print("들어간거 확인")
-    print((result["metadatas"])[0])
+    # print("들어간거 확인")
+    # print((result["metadatas"])[0])
     return metadatas
 
 
@@ -102,8 +103,9 @@ def getShortTermMemories(userId):
     )
     
     metadatas = (result["metadatas"])[0]
-    print("메타 데이터들: ")
-    print(metadatas)
+    
+    # print("메타 데이터들: ")
+    # print(metadatas)
     metadatas.sort(key=lambda x: int(x["id"]))
     for item in metadatas:
         resultString+=(item["observation"])
@@ -112,7 +114,7 @@ def getShortTermMemories(userId):
     return resultString
     
 
-async def updateEpisodeMemory(userId, summary):
+def updateEpisodeMemory(userId, summary):
     epiosdeEmbedding=[]
 
     collection=client.get_collection(name=userId+"_episode")
