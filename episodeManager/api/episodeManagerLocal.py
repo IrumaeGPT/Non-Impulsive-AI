@@ -140,7 +140,6 @@ def updateEpisodeMemory(userId, summary):
     metas.sort(key= lambda x: int(x["id"]))
     
     for item in metas:
-        print(item["summary"])
         item_embedding = embed_model.encode([item["summary"]])
         item_embedding = item_embedding.tolist()
         epiosdeEmbedding.append(item_embedding[0])
@@ -149,8 +148,6 @@ def updateEpisodeMemory(userId, summary):
     summary_embedding = embed_model.encode(summary_embedding_word)
     summary_embedding=summary_embedding.tolist()
     epiosdeEmbedding.append(summary_embedding[0])
-    
-    print(epiosdeEmbedding[0][0]-epiosdeEmbedding[1][0])
     
     # K-Means 클러스터링
     k = 2  # 클러스터 개수

@@ -31,7 +31,7 @@ def chat(userId, query, isTest, checkContext):
 
 
 def main():
-    userId = "test26"
+    userId = "test30"
     initialize(userId)
     with open("data/sample.txt", 'r', encoding='utf-8') as file:
         for line in file:

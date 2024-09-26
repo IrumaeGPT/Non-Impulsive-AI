@@ -43,7 +43,7 @@ async def inputUserQuery(item : Item):
     if checkContext and memories:
         isContextChanged = await LLMController.checkContextChange(query, memories)
         if isContextChanged:
-            print("memories: \n" + memories + "\nquery: " + query +"\n\n")
+            # print("memories: \n" + memories + "\nquery: " + query +"\n\n")
             await updateAIChatbot(userId, memories)
     
     # Save query to short term memory
@@ -56,7 +56,7 @@ async def inputUserQuery(item : Item):
     # Retrieve episodes about query and choose topics
     episodes =  episodeManager.retrieveEpisodes(userId, query)
     retrievedEpisodes[query] = episodes
-    topics =  await LLMController.ChooseTopicToTalk(query, memories, episodes)
+    topics =  await LLMController.chooseTopicToTalk(query, memories, episodes)
     
     # Retrieve episodes about each topic
     for topic in topics:
@@ -75,9 +75,15 @@ async def finishTalking(user: User):
     await updateAIChatbot(user.userId)
     return {"status": "success", "message": "finished talking with chatbot"}
 
+
+@app.post("/episodes/{userId}")
+async def getEpisodes(userId : str):
+    episodes = episodeManager.getEpisodesMemory(userId)
+    return episodes
+
 # Update episode of the AI Chatbot
 async def updateAIChatbot(userId : str, memories : str):
     episode = await LLMController.summarize(memories)
-    print("episode: " + episode)
+    # print("episode: " + episode)
     episodeManager.updateEpisodeMemory(userId, episode)
     return
