@@ -29,7 +29,7 @@ def chat(userId, query, isTest, checkContext):
     r = requests.post(url, data=json.dumps(dic))
     return r.json()
 
-def finish():
+def finish(userId):
     url = base_url + "finish"
     dic = {
 		"userId" : userId,
