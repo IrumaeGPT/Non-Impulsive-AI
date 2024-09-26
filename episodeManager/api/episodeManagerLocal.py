@@ -89,9 +89,10 @@ def getShortTermMemories(userId):
     )
     
     metadatas = (result["metadatas"])[0]
+    metadatas.sort(key=lambda x: int(x["id"]))
     for item in metadatas:
         resultString+=(item["observation"])
-        resultString+="\n"   
+        resultString+="\n" 
         
     return resultString
     
