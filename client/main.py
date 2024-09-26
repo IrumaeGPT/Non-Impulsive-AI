@@ -88,7 +88,7 @@ def eval():
                 break
 
             # AI 캐릭터로부터 답변 반환
-            AI_response = chat(userId, "B: " + text, False, True)
+            AI_response = chat(userId, "B: " + test, False, True)
             finish(userId)
 
             response = client.chat.completions.create(
