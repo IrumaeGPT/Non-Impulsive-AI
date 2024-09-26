@@ -6,7 +6,7 @@ import sys
 # Local
 from util import get_data, split_and_format_text
 
-base_url = "http://127.0.0.1:8800/"
+base_url = "http://127.0.0.1:8000/"
 
 
 def initialize(userId):
@@ -38,7 +38,7 @@ def finish(userId):
     return r.json()
 
 def insert_first_data():
-    userId = "test002"
+    userId = "test67"
     initialize(userId)
     with open("data/sample.txt", 'r', encoding='utf-8') as file:
         for line in file:
@@ -47,7 +47,7 @@ def insert_first_data():
 
 
 def one_chat():
-    userId = "test002"
+    userId = "test67"
     text = ""
     text = input("AI 캐릭터에게 할 질문을 입력하세요(종료 - q) :\n")
     while text != "q":
