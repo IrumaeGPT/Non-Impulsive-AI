@@ -6,7 +6,7 @@ import sys
 # Local
 from util import get_data, split_and_format_text
 
-base_url = "http://127.0.0.1:8000/"
+base_url = "http://127.0.0.1:8800/"
 
 
 def initialize(userId):

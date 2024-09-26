@@ -110,7 +110,9 @@ def getShortTermMemories(userId):
     for item in metadatas:
         resultString+=(item["observation"])
         resultString+="\n" 
-        
+    
+    print(resultString)
+    
     return resultString
     
 
