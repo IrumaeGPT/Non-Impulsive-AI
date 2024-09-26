@@ -29,6 +29,14 @@ def chat(userId, query, isTest, checkContext):
     r = requests.post(url, data=json.dumps(dic))
     return r.json()
 
+def finish():
+    url = base_url + "finish"
+    dic = {
+		"userId" : userId,
+	}
+    r = requests.post(url, data=json.dumps(dic))
+    return r.json()
+
 
 def insert_first_data():
     userId = "test002"
@@ -47,6 +55,7 @@ def one_chat():
         rps = chat(userId, "B: " + text, False, True)
         print("답변 :\n" + rps["response"] + "\n-------------------------\n")
         text = input("AI 캐릭터에게 할 질문을 입력하세요(종료 - q) :\n")
+    finish(userId)
 
 if __name__ == "__main__":
     #insert_first_data()
