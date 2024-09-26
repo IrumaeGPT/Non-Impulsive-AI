@@ -55,12 +55,7 @@ def saveQueryInShortTermMemory(userId, observation):
         {"id": id, "userId":userId, "observation" : observation}
     ]
     
-    embedding_word = [" "]
-    embeddings = embed_model.encode(embedding_word)
-    embeddings = embeddings.tolist()
-    
-    print("생성됨: ")
-    print(metadatas)
+    embeddings = [[0 for _ in range(768)]]
     
     collection.add(
         ids=id,
@@ -77,8 +72,13 @@ def saveQueryInShortTermMemory(userId, observation):
         n_results=n_result+1,
     )
     
-    print("들어간거 확인")
-    print((result["metadatas"])[0])
+    for i in range(len((result["metadatas"])[0])):
+        if ((result["metadatas"])[0])[i] is None:
+            print("None deceted")
+            collection.delete(ids=[((result["ids"])[0])[i]])
+        
+    # print("들어간거 확인")
+    # print((result["metadatas"])[0])
     return metadatas
 
 
@@ -104,11 +104,13 @@ def getShortTermMemories(userId):
     metadatas = (result["metadatas"])[0]
     print("메타 데이터들: ")
     print(metadatas)
-    metadatas.sort(key=lambda x: int(x["id"]))
-    for item in metadatas:
-        resultString+=(item["observation"])
-        resultString+="\n" 
     
+    if(not None in metadatas):
+        metadatas.sort(key=lambda x: int(x["id"]))
+        for item in metadatas:
+            resultString+=(item["observation"])
+            resultString+="\n" 
+        
     print(resultString)
     
     return resultString
