@@ -170,7 +170,7 @@ def updateEpisodeMemory(userId, summary):
     epiosdeEmbedding.append(summary_embedding[0])
     
     # K-Means 클러스터링
-    k = 2  # 클러스터 개수
+    k = (int(len(epiosdeEmbedding) ** 0.5)) +1  # 클러스터 개수
     kmeans = KMeans(n_clusters=k)
     kmeans.fit(epiosdeEmbedding)
 
@@ -253,11 +253,11 @@ def retrieveEpisodes(userId,query):
 #         n_results=n_result,
 #     )
     
-    
     ## 버전 2
     collection=client.get_collection(name=userId+"_episode")
     n_result = collection.count()
     result_response=[]
+    count = len(cluster) // 4
     
     query_word=[query]
     query_word_embedding = embed_model.encode(query_word)
@@ -270,7 +270,9 @@ def retrieveEpisodes(userId,query):
     cosine_result.sort(key=lambda x: x[1], reverse=True)
     
     print(cosine_result)
-    max_cluster = (cosine_result[0])[0]
+    max_clusters = []
+    for i in range(count):
+        max_clusters.append((cosine_result[i])[0])
     
     query_embedding_word=[" "]
     query_embedding = embed_model.encode(query_embedding_word)
@@ -283,9 +285,10 @@ def retrieveEpisodes(userId,query):
     
     metas=(result["metadatas"])[0]
     
-    for item in metas:
-        if(item["cluster"]==max_cluster):
-            result_response.append(item["summary"])
+    for cluster_num in max_clusters:
+        for item in metas:
+            if(item["cluster"]==cluster_num):
+                result_response.append(item["summary"])
     
     return result_response
 

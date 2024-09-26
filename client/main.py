@@ -38,7 +38,7 @@ def finish(userId):
     return r.json()
 
 def insert_first_data():
-    userId = "test002"
+    userId = "test66"
     initialize(userId)
     with open("data/sample.txt", 'r', encoding='utf-8') as file:
         for line in file:
@@ -47,7 +47,7 @@ def insert_first_data():
 
 
 def one_chat():
-    userId = "test002"
+    userId = "test66"
     text = ""
     text = input("AI 캐릭터에게 할 질문을 입력하세요(종료 - q) :\n")
     while text != "q":
@@ -57,5 +57,5 @@ def one_chat():
     finish(userId)
 
 if __name__ == "__main__":
-    #insert_first_data()
-    one_chat()
+    insert_first_data()
+    # one_chat()
