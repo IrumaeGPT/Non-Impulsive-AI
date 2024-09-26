@@ -43,9 +43,9 @@ def updateCluster(cluster_result, embeddings):
     
     return
             
-def saveQueryInShortTermMemory(userId, observation):
+async def saveQueryInShortTermMemory(userId, observation):
     collection=client.get_collection(name=userId+"_buffer")
-    
+    n_result = collection.count()
     if(collection.count()!=0):
         id=str(get_ids_max(collection)+1)
     else:
@@ -58,17 +58,31 @@ def saveQueryInShortTermMemory(userId, observation):
     embedding_word = [" "]
     embeddings = embed_model.encode(embedding_word)
     embeddings = embeddings.tolist()
-     
+    
+    print("생성됨: ")
+    print(metadatas)
+    
     collection.add(
         ids=id,
         metadatas=metadatas,
         embeddings=embeddings
     )
     
+    query_embedding_word=[" "]
+    query_embedding = embed_model.encode(query_embedding_word)
+    query_embedding=query_embedding.tolist()
+    
+    result=collection.query(
+        query_embeddings=query_embedding[0],
+        n_results=n_result+1,
+    )
+    
+    print("들어간거 확인")
+    print((result["metadatas"])[0])
     return metadatas
 
 
-def getShortTermMemories(userId):
+async def getShortTermMemories(userId):
     collection=client.get_collection(name=userId+"_buffer")
     n_result = collection.count()
     resultString=""
@@ -88,6 +102,8 @@ def getShortTermMemories(userId):
     )
     
     metadatas = (result["metadatas"])[0]
+    print("메타 데이터들: ")
+    print(metadatas)
     metadatas.sort(key=lambda x: int(x["id"]))
     for item in metadatas:
         resultString+=(item["observation"])
@@ -96,7 +112,7 @@ def getShortTermMemories(userId):
     return resultString
     
 
-def updateEpisodeMemory(userId, summary):
+async def updateEpisodeMemory(userId, summary):
     epiosdeEmbedding=[]
 
     collection=client.get_collection(name=userId+"_episode")
@@ -193,7 +209,7 @@ def updateEpisodeMemory(userId, summary):
     )
     
     updateCluster(cluster_labels , epiosdeEmbedding)
-    print(cluster)
+    # print(cluster)
     
     delete_buffer_memory(collection_buffer)
     #클러스터링 하고
@@ -274,6 +290,26 @@ def retrieveEpisodes(userId,query):
             result_response.append(item["summary"])
     
     return result_response
+
+def getEpisodesMemory(userId):
+    collection=client.get_collection(name=userId+"_episode")
+    n_result = collection.count()
+    query_embedding_word=[" "]
+    query_embedding = embed_model.encode(query_embedding_word)
+    query_embedding=query_embedding.tolist()
+    
+    result=collection.query(
+        query_embeddings=query_embedding[0],
+        n_results=n_result,
+    )
+    
+    metadatas = (result["metadatas"])[0]
+    print("메타 데이터들: ")
+    print(metadatas)
+    metadatas.sort(key=lambda x: int(x["id"]))
+    
+    return metadatas
+    
 
 def cosine_similarity(list1, list2):
     # 리스트를 numpy 배열로 변환
