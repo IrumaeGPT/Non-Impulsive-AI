@@ -30,7 +30,7 @@ def chat(userId, query, isTest, checkContext):
     return r.json()
 
 
-def main():
+def insert_first_data():
     userId = "test002"
     initialize(userId)
     with open("data/sample.txt", 'r', encoding='utf-8') as file:
@@ -38,5 +38,15 @@ def main():
             line = line.strip()
             chat(userId, line, True, True if line[0] == "B" else False)
 
+
+def one_chat():
+    userId = "test002"
+    text = ""
+    while text is "q":
+        text = input("AI 캐릭터에게 할 질문을 입력하세요(종료 - q) :\n")
+        rps = chat(userId, "B: " + text, False, True)
+        print("답변 :\n" + rps["response"] + "\n-------------------------\n")
+
 if __name__ == "__main__":
-    main()
+    #insert_first_data()
+    one_chat()
