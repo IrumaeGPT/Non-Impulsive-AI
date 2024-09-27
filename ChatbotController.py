@@ -47,7 +47,8 @@ async def inputUserQuery(item : Item):
             await updateAIChatbot(userId, memories)
     
     # Save query to short term memory
-    episodeManager.saveQueryInShortTermMemory(userId, query)
+    if isTest:
+        episodeManager.saveQueryInShortTermMemory(userId, query)
 
     # When testing, end function here
     if isTest:
@@ -65,7 +66,7 @@ async def inputUserQuery(item : Item):
 
     # Generate response and save it to short term memory
     response = await LLMController.generateResponse(query, memories, topics, retrievedEpisodes)
-    episodeManager.saveQueryInShortTermMemory(userId, response)
+    # episodeManager.saveQueryInShortTermMemory(userId, response)
     
     return {"status": "success", "response": response, "message": "get response from chatbot"}
 
@@ -84,6 +85,5 @@ async def getEpisodes(userId : str):
 # Update episode of the AI Chatbot
 async def updateAIChatbot(userId : str, memories : str):
     episode = await LLMController.summarize(memories)
-    print("episode: " + episode)
-    episodeManager.updateEpisodeMemory(userId, episode)
+    # episodeManager.updateEpisodeMemory(userId, episode)
     return

@@ -1,8 +1,11 @@
 from .openaikey import client
+from openai import OpenAI
 from . import prompt
+import ast
 
 # Return true if context is changed
 async def checkContextChange(query : str, memories : str) : 
+    client = OpenAI(api_key="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")
     response = client.chat.completions.create(
         model="gpt-4o-mini",
         temperature=0.5,
@@ -23,7 +26,7 @@ async def checkContextChange(query : str, memories : str) :
 # Summarize input memories
 async def summarize(memories : str):
     response = client.chat.completions.create(
-    model="gpt-4o-mini",
+    model="gpt-4o",
     temperature=0.5,
     top_p=0.5,
     messages=[
@@ -33,9 +36,14 @@ async def summarize(memories : str):
     return response.choices[0].message.content
 
 
-async def chooseTopicToTalk(query : str, memories : str, episodes : list[str]):
-    userPrompt = "<이전 대화 내용>\n" + memories + "\n\n" + "<입력된 문장>\n" + query + "\n\n" \
-        + "<갖고 있는 기억>\n" + episodes
+async def chooseTopicToTalk(query, memories, episodes):
+    client = OpenAI(api_key="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")
+    episodeString = ""
+    for episode in episodes:
+        episodeString += episode
+    print(memories)
+    userPrompt ="<입력된 문장>\n" + query + "\n\n" \
+        + "<갖고 있는 기억>\n" + episodeString
     response = client.chat.completions.create(
     model="gpt-4o",
     temperature=0.5,
@@ -45,16 +53,20 @@ async def chooseTopicToTalk(query : str, memories : str, episodes : list[str]):
         {"role": "user", "content": userPrompt},
     ])
     topics = response.choices[0].message.content
-    if topics is not list:
-        print("topic generating error: not a list")
+    topics = ast.literal_eval(topics)
+
     return topics
 
 async def generateResponse(query : str, memories : str, topics : list[str], retrievedEpisodes : dict):
-    userPrompt = "<이전 대화 내용>\n" + memories + "\n\n" + "<입력된 문장>\n" + query + "\n\n"
+    client = OpenAI(api_key="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")
+    userPrompt = "\n\n" + "<입력된 문장>\n" + query + "\n\n"
     i = 1
     for topic in topics:
-        userPrompt += "<답변주제" + i + ">\n" + topic + "\n\n" + \
-            "<갖고 있는 관련 기억\n" + retrievedEpisodes[topic] + "\n\n"
+        memory = ""
+        for episode in retrievedEpisodes[topic]:
+            memory+=episode
+        userPrompt += "<답변주제" + str(i) + ">\n" + topic + "\n\n" + \
+            "<갖고 있는 관련 기억>\n" + memory + "\n\n"
         i += 1
     response = client.chat.completions.create(
     model="gpt-4o",
@@ -64,4 +76,5 @@ async def generateResponse(query : str, memories : str, topics : list[str], retr
         {"role": "system", "content": prompt.responsePrompt},
         {"role": "user", "content": userPrompt},
     ])
+    print(userPrompt)
     return response.choices[0].message.content

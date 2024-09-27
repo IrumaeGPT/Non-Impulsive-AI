@@ -19,7 +19,7 @@ gpt_prompt = """다음 A와 B의 대화를 반영하여 다음의 올 A의 답�
 # Local
 from util import get_data, split_and_format_text
 
-base_url = "http://127.0.0.1:8000/"
+base_url = "http://127.0.0.1:8800/"
 
 ### ChatBotController
 def initialize(userId):
@@ -53,7 +53,7 @@ def finish(userId):
 
 
 def insert_first_data():
-    userId = "test67"
+    userId = "irumae3"
     initialize(userId)
     with open("data/sample.txt", 'r', encoding='utf-8') as file:
         for line in file:
@@ -62,22 +62,23 @@ def insert_first_data():
 
 
 def one_chat():
-    userId = "test66"
+    userId = "irumae3"
     text = ""
     text = input("AI 캐릭터에게 할 질문을 입력하세요(종료 - q) :\n")
     while text != "q":
         rps = chat(userId, "B: " + text, False, True)
         print("답변 :\n" + rps["response"] + "\n-------------------------\n")
         text = input("AI 캐릭터에게 할 질문을 입력하세요(종료 - q) :\n")
-    finish(userId)
+    # finish(userId)
 
 def eval():
     score = 0
     count = 0
-    userId = "test123"
-    with open('data/test.txt', 'r') as file1, open('data/awnser.txt', 'r') as file2:
+    userId = "irumae3"
+    with open('data/test.txt', 'r',encoding='utf-8') as file1, open('data/awnser.txt', 'r',encoding='utf-8') as file2:
         print("Evaluation...")
         while True:
+            client = OpenAI(api_key="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")
             # 각각의 파일에서 한 줄씩 읽기
             test = file1.readline()
             awnser = file2.readline()
@@ -88,14 +89,13 @@ def eval():
 
             # AI 캐릭터로부터 답변 반환
             AI_response = chat(userId, "B: " + test, False, True)
-            finish(userId)
 
             response = client.chat.completions.create(
                 model="gpt-4o",
                 temperature=0,
                 messages=[
                     {"role": "system", "content": eval_prompt},
-                    {"role": "user", "content":"질문 : " + test + "\n정답 : " + awnser + "\n답변 : " + AI_response}
+                    {"role": "user", "content":"질문 : " + test + "\n정답 : " + awnser + "\n답변 : " + AI_response['response']}
                 ])
 
             result = response.choices[0].message.content
@@ -105,8 +105,8 @@ def eval():
             print("======= CASE :", count, "=========")
             print("질문 :", test)
             print("정답 :", awnser)
-            print("답변 :", AI_response)
-            print("점수 :", score, "\n")
+            print("답변 :", AI_response['response'])
+            print("점수 :", int(result), "\n")
 
     print("Eval Complete!\nScore :", score / count)
 
@@ -117,9 +117,10 @@ def eval_chatgpt():
     with open("data/sample.txt", 'r', encoding='utf-8') as file:
         all_text = file.read()
 
-    with open('data/test.txt', 'r') as file1, open('data/awnser.txt', 'r') as file2:
+    with open('data/test.txt', 'r',encoding='utf-8') as file1, open('data/awnser.txt', 'r',encoding='utf-8') as file2:
         print("Evaluation...")
         while True:
+            client = OpenAI(api_key="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")
             # 각각의 파일에서 한 줄씩 읽기
             test = file1.readline()
             awnser = file2.readline()
@@ -162,5 +163,7 @@ def eval_chatgpt():
 ###
 
 if __name__ == "__main__":
-    #insert_first_data()
-    one_chat()
+    # insert_first_data()
+    # one_chat()
+    eval()
+    # # eval_chatgpt()

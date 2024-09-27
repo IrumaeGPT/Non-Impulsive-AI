@@ -15,8 +15,8 @@ cluster = []
 def make_collection(userId):
     print(userId)
     print(client)
-    client.create_collection(name=userId+"_episode", metadata={"hnsw:space":"cosine","hnsw:M": 1024})
-    client.create_collection(name=userId+"_buffer", metadata={"hnsw:space":"cosine","hnsw:M": 1024})
+    client.create_collection(name=userId+"_episode", metadata={"hnsw:space":"cosine","hnsw:M": 2048})
+    client.create_collection(name=userId+"_buffer", metadata={"hnsw:space":"cosine","hnsw:M": 2048})
     print("Sucess")
     return 200; 
 
@@ -42,7 +42,44 @@ def updateCluster(cluster_result, embeddings):
             ((cluster[idx])["avg"])[j] = ((cluster[idx])["sum"])[j] / ((cluster[idx])["count"])
     
     return
+
+def init_cluster(userId):
+
+    epiosdeEmbedding=[]
+    
+    collection=client.get_collection(name=userId+"_episode")
+    n_result = collection.count()
             
+    query_embedding_word=[" "]
+    query_embedding = embed_model.encode(query_embedding_word)
+    query_embedding=query_embedding.tolist()
+    
+    result=collection.query(
+        query_embeddings=query_embedding[0],
+        n_results=n_result,
+    )
+    
+    metas=(result["metadatas"])[0]
+    metas.sort(key= lambda x: int(x["id"]))
+    
+    for item in metas:
+        item_embedding = embed_model.encode([item["summary"]])
+        item_embedding = item_embedding.tolist()
+        epiosdeEmbedding.append(item_embedding[0])
+    
+    # K-Means 클러스터링
+    k = int(len(epiosdeEmbedding) ** 0.5) +1  # 클러스터 개수
+    kmeans = KMeans(n_clusters=k)
+    kmeans.fit(epiosdeEmbedding)
+
+    # 클러스터 레이블과 중심점
+    cluster_labels = kmeans.labels_
+    print(cluster_labels)
+    
+    updateCluster(cluster_labels, epiosdeEmbedding)
+
+init_cluster("irumae3")
+      
 def saveQueryInShortTermMemory(userId, observation):
     collection=client.get_collection(name=userId+"_buffer")
     n_result = collection.count()
@@ -62,7 +99,6 @@ def saveQueryInShortTermMemory(userId, observation):
         metadatas=metadatas,
         embeddings=embeddings
     )
-    
     
     query_embedding_word=[" "]
     query_embedding = embed_model.encode(query_embedding_word)
@@ -86,11 +122,13 @@ def saveQueryInShortTermMemory(userId, observation):
 
 def getShortTermMemories(userId):
     collection=client.get_collection(name=userId+"_buffer")
+    
+    
     n_result = collection.count()
     resultString=""
     
     if(n_result==0):
-        return []
+        return " "
     elif(n_result==1):
         n_result=1
         
@@ -170,7 +208,7 @@ def updateEpisodeMemory(userId, summary):
     epiosdeEmbedding.append(summary_embedding[0])
     
     # K-Means 클러스터링
-    k = (int(len(epiosdeEmbedding) ** 0.5)) +1  # 클러스터 개수
+    k = int(len(epiosdeEmbedding) ** 0.5) +1  # 클러스터 개수
     kmeans = KMeans(n_clusters=k)
     kmeans.fit(epiosdeEmbedding)
 
@@ -221,7 +259,8 @@ def delete_buffer_memory(collection):
         ids.append(str(i))
     print("버퍼 삭제 리스트:")
     print(ids)
-    collection.delete(ids=ids)
+    if(not len(ids)==0):
+        collection.delete(ids=ids)
     return
 
 def retrieveEpisodes(userId,query):
@@ -257,7 +296,7 @@ def retrieveEpisodes(userId,query):
     collection=client.get_collection(name=userId+"_episode")
     n_result = collection.count()
     result_response=[]
-    count = len(cluster) // 4
+    count = int(len(cluster) * 0.5)
     
     query_word=[query]
     query_word_embedding = embed_model.encode(query_word)
@@ -269,10 +308,10 @@ def retrieveEpisodes(userId,query):
         cosine_result.append([(cluster[i]["clusterId"]),cosine_similarity(query_word_embedding[0],cluster_avg)])
     cosine_result.sort(key=lambda x: x[1], reverse=True)
     
-    print(cosine_result)
     max_clusters = []
     for i in range(count):
         max_clusters.append((cosine_result[i])[0])
+        
     
     query_embedding_word=[" "]
     query_embedding = embed_model.encode(query_embedding_word)
@@ -335,6 +374,9 @@ def get_ids_max(collection):
     query_embedding_word=[" "] #바꿔야 하는 부분
     query_embedding=embed_model.encode(query_embedding_word)
     query_embedding=query_embedding.tolist()
+    if n_result==0:
+        return 0
+    
     result=collection.query(
             query_embeddings=query_embedding[0],
             n_results=n_result
