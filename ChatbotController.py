@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from LLMController import LLMController
 import episodeManager.api.episodeManagerLocal as episodeManager
 from pydantic import BaseModel
+from typing import List
+
 # fastAPI server activate code
 # uvicorn ChatbotController:app --reload
 
@@ -10,44 +12,50 @@ from pydantic import BaseModel
 
 app = FastAPI()
 
-class Item(BaseModel):
+class InitialInfos(BaseModel):
+    userId : str
+    infos : List[str] = []
+
+class UserQuery(BaseModel):
     userId : str
     query : str
     isTest : bool
-    checkContext : bool
-
-class User(BaseModel):
-    userId : str
+    
+class Information:
+    knowledge : str
+    sourceEpisode : str
 
 # initialize user id
 @app.post("/initialize")
-async def initialize(user: User):
+async def initialize(user: InitialInfos):
     userId = user.userId
-    episodeManager.make_collection(userId)
+    for info in user.infos:
+        reflectNewKnowledge(userId, info, -1)
     return {"status": "success", "message": "initialized user"}
 
 # input user query and get response
 @app.post("/chat")
-async def inputUserQuery(item : Item):
+async def inputUserQuery(userQuery : UserQuery):
 
-    userId = item.userId
-    query = item.query
-    isTest = item.isTest
-    checkContext = item.checkContext
-    
-    # Get previous dialouge
-    retrievedEpisodes = dict()
-    memories = episodeManager.getShortTermMemories(userId)
-
-    # Check context and update AI
-    if checkContext and memories:
-        isContextChanged = await LLMController.checkContextChange(query, memories)
-        if isContextChanged:
-            print("memories: \n" + memories + "\nquery: " + query +"\n\n")
-            await updateAIChatbot(userId, memories)
+    userId = userQuery.userId
+    query = userQuery.query
+    isTest = userQuery.isTest
+    recalledInformations = List[Information]
     
     # Save query to short term memory
     episodeManager.saveQueryInShortTermMemory(userId, query)
+    
+    # Get previous dialouge
+    memories = episodeManager.getShortTermMemories(userId)
+
+    # Check context and update AI
+    if memories:
+        isContextChanged = await LLMController.checkContextChange(memories)
+        if isContextChanged:
+            print("memories: \n" + memories)
+            episodeManager.saveQueryInShortTermMemory(userId, query)
+            #await updateAIChatbot(userId, memories)
+    return
 
     # When testing, end function here
     if isTest:
@@ -71,7 +79,7 @@ async def inputUserQuery(item : Item):
 
 # finish chat
 @app.post("/finish")
-async def finishTalking(user: User):
+async def finishTalking(user: UserQuery):
     await updateAIChatbot(user.userId)
     return {"status": "success", "message": "finished talking with chatbot"}
 
@@ -80,6 +88,10 @@ async def finishTalking(user: User):
 async def getEpisodes(userId : str):
     episodes = episodeManager.getEpisodesMemory(userId)
     return episodes
+
+async def reflectNewKnowledge(userId : str, newInfo : str, sourceEpisodeId : int):
+    
+    return
 
 # Update episode of the AI Chatbot
 async def updateAIChatbot(userId : str, memories : str):
