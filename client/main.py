@@ -19,7 +19,7 @@ gpt_prompt = """다음 A와 B의 대화를 반영하여 다음의 올 A의 답�
 # Local
 from util import get_data, split_and_format_text
 
-base_url = "http://127.0.0.1:8800/"
+base_url = "http://127.0.0.1:8000/"
 
 ### ChatBotController
 def initialize(userId):
@@ -53,16 +53,16 @@ def finish(userId):
 
 
 def insert_first_data():
-    userId = "irumae3"
+    userId = "tttt12"
     initialize(userId)
     with open("data/sample.txt", 'r', encoding='utf-8') as file:
         for line in file:
             line = line.strip()
-            chat(userId, line, True, True if line[0] == "B" else False)
+            chat(userId, line, True, True)
 
 
 def one_chat():
-    userId = "irumae3"
+    userId = "tttt12"
     text = ""
     text = input("AI 캐릭터에게 할 질문을 입력하세요(종료 - q) :\n")
     while text != "q":
@@ -74,7 +74,7 @@ def one_chat():
 def eval():
     score = 0
     count = 0
-    userId = "irumae3"
+    userId = "tttt12"
     with open('data/test.txt', 'r',encoding='utf-8') as file1, open('data/awnser.txt', 'r',encoding='utf-8') as file2:
         print("Evaluation...")
         while True:
@@ -163,7 +163,7 @@ def eval_chatgpt():
 ###
 
 if __name__ == "__main__":
-    # insert_first_data()
+    insert_first_data()
     # one_chat()
-    eval()
+    # esval()
     # # eval_chatgpt()
