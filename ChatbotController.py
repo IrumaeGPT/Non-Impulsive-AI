@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from LLMController import LLMController
 import episodeManager.api.episodeManagerLocal as episodeManager
+from KnowledgeManager import Knowledge as knowledgeManager
 from pydantic import BaseModel
 from typing import List
 
@@ -41,7 +42,7 @@ async def inputUserQuery(userQuery : UserQuery):
     query = userQuery.query
     isTest = userQuery.isTest
     recalledInformations = List[Information]
-    
+
     # Save query to short term memory
     episodeManager.saveQueryInShortTermMemory(userId, query)
     
@@ -53,8 +54,8 @@ async def inputUserQuery(userQuery : UserQuery):
         isContextChanged = await LLMController.checkContextChange(memories)
         if isContextChanged:
             print("memories: \n" + memories)
+            await updateAIChatbot(userId, memories)
             episodeManager.saveQueryInShortTermMemory(userId, query)
-            #await updateAIChatbot(userId, memories)
     return
 
     # When testing, end function here
@@ -89,13 +90,15 @@ async def getEpisodes(userId : str):
     episodes = episodeManager.getEpisodesMemory(userId)
     return episodes
 
-async def reflectNewKnowledge(userId : str, newInfo : str, sourceEpisodeId : int):
-    
-    return
-
 # Update episode of the AI Chatbot
 async def updateAIChatbot(userId : str, memories : str):
-    episode = await LLMController.summarize(memories)
-    print("episode: " + episode)
-    episodeManager.updateEpisodeMemory(userId, episode)
+    episodeId = episodeManager.createEpisode(userId)
+    summarized = await LLMController.summarize(memories)
+    reflectNewKnowledge(userId, summarized, episodeId)
+    return
+
+# Reflect new Knowledge
+async def reflectNewKnowledge(userId : str, newInfo : str, sourceEpisodeId : int):
+    relationTuples = LLMController.extractRelationship(newInfo)
+    knowledgeManager.updateKnowledgeGraph(relationTuples, sourceEpisodeId)
     return
