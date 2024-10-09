@@ -1,10 +1,12 @@
 from .openaikey import client
 from . import prompt
 
+messages = []
+
 # Return true if context is changed
-async def checkContextChange(query : str, memories : str) : 
+async def checkContextChange(query : str, memories : str) :
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model="ft:gpt-4o-mini-2024-07-18:personal::AFbk7D7v",
         temperature=0.5,
         top_p=0.5,
         messages=[
@@ -18,7 +20,7 @@ async def checkContextChange(query : str, memories : str) :
         return False
     else:
         return False
-    
+
 
 # Summarize input memories
 async def summarize(memories : str):
