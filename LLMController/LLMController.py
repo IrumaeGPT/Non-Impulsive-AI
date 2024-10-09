@@ -4,24 +4,30 @@ from . import prompt
 import ast
 
 # Return true if context is changed
-async def checkContextChange(query : str, memories : str) : 
-    client = OpenAI(api_key="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")
+async def checkContextChange(memories : str) :
+    messages = []
+    messages.append({"role": "system", "content": prompt.contextCheckPrompt})
+    for s in memories.split("\n"):
+        messages.append({"role": "user", "content": s})
+        #messages.append({"role": "assistant", "content": "동일"})
+
+    #messages.pop()
+
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        temperature=0.5,
-        top_p=0.5,
-        messages=[
-            {"role": "system", "content": prompt.contextCheckPrompt},
-            {"role": "user", "content":"<이전 대화 내용>\n" + memories + "\n\n<입력된 문장>" + query + "\n\n<결과>"},
-    ])
+        model="ft:gpt-4o-mini-2024-07-18:personal::AGLY8ZHM",
+        temperature=0.8,
+        top_p=0.8,
+        messages=messages
+    )
     result = response.choices[0].message.content
+    print(result)
     if "변화" in result:
         return True
     elif "동일" in result:
         return False
     else:
         return False
-    
+
 
 # Summarize input memories
 async def summarize(memories : str):
@@ -34,6 +40,12 @@ async def summarize(memories : str):
         {"role": "user", "content": memories},
     ])
     return response.choices[0].message.content
+
+
+# extra relationship
+async def extra_relationship(memories : str):
+    tuples = list()
+    return tuples
 
 
 async def chooseTopicToTalk(query, memories, episodes):

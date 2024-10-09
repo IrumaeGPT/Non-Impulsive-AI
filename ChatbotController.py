@@ -34,21 +34,18 @@ async def inputUserQuery(item : Item):
     query = item.query
     isTest = item.isTest
     checkContext = item.checkContext
-    
+
     # Get previous dialouge
     retrievedEpisodes = dict()
+    episodeManager.saveQueryInShortTermMemory(userId, query)
     memories = episodeManager.getShortTermMemories(userId)
 
     # Check context and update AI
     if checkContext and memories:
-        isContextChanged = await LLMController.checkContextChange(query, memories)
+        isContextChanged = await LLMController.checkContextChange(memories)
         if isContextChanged:
-            print("memories: \n" + memories + "\nquery: " + query +"\n\n")
             await updateAIChatbot(userId, memories)
-    
-    # Save query to short term memory
-    if isTest:
-        episodeManager.saveQueryInShortTermMemory(userId, query)
+            episodeManager.saveQueryInShortTermMemory(userId, query)
 
     # When testing, end function here
     if isTest:
@@ -58,7 +55,7 @@ async def inputUserQuery(item : Item):
     episodes =  episodeManager.retrieveEpisodes(userId, query)
     retrievedEpisodes[query] = episodes
     topics =  await LLMController.chooseTopicToTalk(query, memories, episodes)
-    
+
     # Retrieve episodes about each topic
     for topic in topics:
         episodes =  episodeManager.retrieveEpisodes(userId, topic)
@@ -67,7 +64,7 @@ async def inputUserQuery(item : Item):
     # Generate response and save it to short term memory
     response = await LLMController.generateResponse(query, memories, topics, retrievedEpisodes)
     # episodeManager.saveQueryInShortTermMemory(userId, response)
-    
+
     return {"status": "success", "response": response, "message": "get response from chatbot"}
 
 # finish chat
@@ -85,5 +82,6 @@ async def getEpisodes(userId : str):
 # Update episode of the AI Chatbot
 async def updateAIChatbot(userId : str, memories : str):
     episode = await LLMController.summarize(memories)
-    # episodeManager.updateEpisodeMemory(userId, episode)
+    print(episode)
+    episodeManager.updateEpisodeMemory(userId, episode)
     return
