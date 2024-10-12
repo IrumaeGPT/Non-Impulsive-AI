@@ -43,8 +43,19 @@ async def summarize(memories : str):
 
 
 # extra relationship
-async def extra_relationship(memories : str):
-    tuples = list()
+async def extra_relationship(summarized_text : str):
+    thread = client.beta.threads.create()
+    message = self.client.beta.threads.messages.create(
+  			thread_id=thread.id,
+  			role="user",
+  			content=summarized_text
+	    )
+    run = client.beta.threads.runs.create(
+        thread_id="thread_abc123",
+        assistant_id="asst_abc123",
+        response_format = {"type":"json_object"}
+        )
+    result = run
     return tuples
 
 

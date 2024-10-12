@@ -21,7 +21,7 @@ class UserQuery(BaseModel):
     userId : str
     query : str
     isTest : bool
-    
+
 class Information:
     knowledge : str
     sourceEpisode : str
@@ -37,7 +37,7 @@ async def initialize(user: InitialInfos):
 # input user query and get response
 @app.post("/chat")
 async def inputUserQuery(userQuery : UserQuery):
-    
+
     userId = userQuery.userId
     query = userQuery.query
     isTest = userQuery.isTest
@@ -45,7 +45,7 @@ async def inputUserQuery(userQuery : UserQuery):
 
     # Save query to short term memory
     episodeManager.saveQueryInShortTermMemory(userId, query)
-    
+
     # Get previous dialouge
     memories = episodeManager.getShortTermMemories(userId)
 
