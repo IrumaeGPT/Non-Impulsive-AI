@@ -54,7 +54,7 @@ def finish(userId):
 
 def insert_first_data():
     userId = "tttt13"
-    initialize(userId)
+    #initialize(userId)
     with open("data/sample.txt", 'r', encoding='utf-8') as file:
         for line in file:
             line = line.strip()
