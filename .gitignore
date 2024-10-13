@@ -4,3 +4,4 @@ venv/
 ./LLMController/__pycache__
 ./episodeManager/api/__pycache__
 ./episodeManager/model/__pycache__
+./episodeManager/chroma

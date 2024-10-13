@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from LLMController import LLMController
 import episodeManager.api.episodeManagerLocal as episodeManager
-from KnowledgeManager import Knowledge as knowledgeManager
+#from KnowledgeManager import Knowledge as knowledgeManager
 from pydantic import BaseModel
 from typing import List
 
@@ -21,7 +21,7 @@ class UserQuery(BaseModel):
     userId : str
     query : str
     isTest : bool
-    
+
 class Information:
     knowledge : str
     sourceEpisode : str
@@ -37,25 +37,27 @@ async def initialize(user: InitialInfos):
 # input user query and get response
 @app.post("/chat")
 async def inputUserQuery(userQuery : UserQuery):
-    
+
     userId = userQuery.userId
     query = userQuery.query
     isTest = userQuery.isTest
     recalledInformations = List[Information]
 
     # Save query to short term memory
-    episodeManager.saveQueryInShortTermMemory(userId, query)
-    
+    # 에피소드 메니저 우선 비활성화
+    #episodeManager.saveQueryInShortTermMemory(userId, query)
+
     # Get previous dialouge
-    memories = episodeManager.getShortTermMemories(userId)
+    # 에피소드 메니저 우선 비활성화
+    #memories = episodeManager.getShortTermMemories(userId)
 
     # Check context and update AI
-    if memories:
-        isContextChanged = await LLMController.checkContextChange(memories)
-        if isContextChanged:
-            print("memories: \n" + memories)
-            await updateAIChatbot(userId, memories)
-            episodeManager.saveQueryInShortTermMemory(userId, query)
+    isContextChanged, memories = await LLMController.checkContextChange(query)
+    print(memories)
+    if isContextChanged:
+        await updateAIChatbot(userId, memories)
+        # 에피소드 메니저 우선 비활성화
+        #episodeManager.saveQueryInShortTermMemory(userId, query)
     return
 
     # When testing, end function here
@@ -92,13 +94,15 @@ async def getEpisodes(userId : str):
 
 # Update episode of the AI Chatbot
 async def updateAIChatbot(userId : str, memories : str):
-    episodeId = episodeManager.createEpisode(userId)
+    # 에피소드 메니저 우선 비활성화
+    # episodeId = episodeManager.createEpisode(userId)
     summarized = await LLMController.summarize(memories)
-    reflectNewKnowledge(userId, summarized, episodeId)
+    await reflectNewKnowledge(userId, summarized, 0)
     return
 
 # Reflect new Knowledge
 async def reflectNewKnowledge(userId : str, newInfo : str, sourceEpisodeId : int):
-    relationTuples = LLMController.extractRelationship(newInfo)
-    knowledgeManager.updateKnowledgeGraph(relationTuples, sourceEpisodeId)
+    relationTuples = await LLMController.extractRelationship(newInfo)
+    print(relationTuples)
+    #knowledgeManager.updateKnowledgeGraph(relationTuples, sourceEpisodeId)
     return
