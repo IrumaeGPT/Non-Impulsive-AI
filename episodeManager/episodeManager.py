@@ -106,8 +106,8 @@ def getShortTermMemories(userName):
 
 def createEpisode(userName):
     
-   userId=find_userId(userName)
-   if(userId != -1):
+    userId=find_userId(userName)
+    if(userId != -1):
         sql = f"SELECT * FROM longterm WHERE user_id = '{userId}'"
         cursor.execute(sql)
         longterm_memory = cursor.fetchall()
@@ -128,7 +128,10 @@ def createEpisode(userName):
         cursor.execute(sql)
         
         connection.commit()
+        return episodeId
     
+    return -1 
+
 def find_userId(userName):
     sql = f"SELECT * FROM user WHERE name = '{userName}'"
     
