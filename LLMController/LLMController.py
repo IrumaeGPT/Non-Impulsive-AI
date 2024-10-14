@@ -43,7 +43,7 @@ async def summarize(memories : str):
 
 
 # extra relationship
-async def extra_relationship(memories : str):
+async def extractRelationship(memories : str):
     tuples = list()
     return tuples
 
