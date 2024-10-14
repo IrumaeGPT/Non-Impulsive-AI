@@ -5,3 +5,4 @@ venv/
 ./episodeManager/api/__pycache__
 ./episodeManager/model/__pycache__
 ./episodeManager/chroma
+.env

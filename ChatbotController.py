@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from LLMController import LLMController
-import episodeManager.api.episodeManagerLocal as episodeManager
-#from KnowledgeManager import Knowledge as knowledgeManager
+# import episodeManager.api.episodeManagerLocal as episodeManager
+from episodeManager import episodeManager as episodeManger
+from KnowledgeManager import Knowledge as knowledgeManager
 from pydantic import BaseModel
 from typing import List
 
@@ -30,6 +31,7 @@ class Information:
 @app.post("/initialize")
 async def initialize(user: InitialInfos):
     userId = user.userId
+    episodeManger.initialUser(userId)
     for info in user.infos:
         reflectNewKnowledge(userId, info, -1)
     return {"status": "success", "message": "initialized user"}
@@ -89,8 +91,9 @@ async def finishTalking(user: UserQuery):
 # Get every saved episodes
 @app.post("/episodes/{userId}")
 async def getEpisodes(userId : str):
-    episodes = episodeManager.getEpisodesMemory(userId)
-    return episodes
+    # episodes = episodeManager.getEpisodesMemory(userId)
+    # return episodes
+    return 
 
 # Update episode of the AI Chatbot
 async def updateAIChatbot(userId : str, memories : str):
@@ -104,5 +107,5 @@ async def updateAIChatbot(userId : str, memories : str):
 async def reflectNewKnowledge(userId : str, newInfo : str, sourceEpisodeId : int):
     relationTuples = await LLMController.extractRelationship(newInfo)
     print(relationTuples)
-    #knowledgeManager.updateKnowledgeGraph(relationTuples, sourceEpisodeId)
+    knowledgeManager.updateKnowledgeGraph(relationTuples, sourceEpisodeId)
     return

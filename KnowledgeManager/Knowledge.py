@@ -122,6 +122,21 @@ with driver.session() as session:
     session.execute_write(community_detect)
 
 def updateKnowledgeGraph(relationTuples,sourceEpisodeId):
+    #커뮤니티 노드 간선 생성
+    for relation in relationTuples:
+        word=[relation[0],relation[1]]
+        edge = relation[2]
+        word_embedding = embed_model.encode(word)
+        word_embedding=word_embedding.tolist()
+        
+        with driver.session() as session:
+            session.execute_write(create_node,word[0],word_embedding[0])
+            session.execute_write(create_node,word[0],word_embedding[0])
+            session.execute_write(create_relationship,word[0],word[1],edge,sourceEpisodeId)
+            
+    #커뮤니티 탐지
+    session.execute_write(community_detect)
+    
     return
 
 # 드라이버 종료
