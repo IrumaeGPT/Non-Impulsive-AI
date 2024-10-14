@@ -53,8 +53,8 @@ def finish(userId):
 
 
 def insert_first_data():
-    userId = "tttt12"
-    initialize(userId)
+    userId = "tttt13"
+    #initialize(userId)
     with open("data/sample.txt", 'r', encoding='utf-8') as file:
         for line in file:
             line = line.strip()
@@ -62,7 +62,7 @@ def insert_first_data():
 
 
 def one_chat():
-    userId = "tttt12"
+    userId = "tttt13"
     text = ""
     text = input("AI 캐릭터에게 할 질문을 입력하세요(종료 - q) :\n")
     while text != "q":
@@ -74,7 +74,7 @@ def one_chat():
 def eval():
     score = 0
     count = 0
-    userId = "tttt12"
+    userId = "tttt13"
     with open('data/test.txt', 'r',encoding='utf-8') as file1, open('data/awnser.txt', 'r',encoding='utf-8') as file2:
         print("Evaluation...")
         while True:
