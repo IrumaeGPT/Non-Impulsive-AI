@@ -9,16 +9,26 @@ load_dotenv(dotenv_path=current_directory+"/.env")
 
 user = os.getenv('user')
 password = os.getenv('password')
+devuser = os.getenv('devuser')
+devpassword = os.getenv('devpassword')
+host = os.getenv('host')
 
+# # MySQL local 서버에 연결
+# connection = mysql.connector.connect(
+#     host="localhost",       # MySQL 서버 호스트 주소 (로컬이면 'localhost')
+#     user=user,   # MySQL 사용자 이름
+#     password=password, # MySQL 비밀번호
+#     database="aicharacter",  # 사용할 데이터베이스 이름
+#     port=4000 #포트번호
+# )
 
-
-# MySQL local 서버에 연결
+# MySQL Dev 서버에 연결
 connection = mysql.connector.connect(
-    host="localhost",       # MySQL 서버 호스트 주소 (로컬이면 'localhost')
-    user=user,   # MySQL 사용자 이름
-    password=password, # MySQL 비밀번호
+    host=host,       # MySQL 서버 호스트 주소 (로컬이면 'localhost')
+    user=devuser,   # MySQL 사용자 이름
+    password=devpassword, # MySQL 비밀번호
     database="aicharacter",  # 사용할 데이터베이스 이름
-    port=4000 #포트번호
+    port=3306 #포트번호
 )
 
 if connection.is_connected():
@@ -149,7 +159,7 @@ def find_userId(userName):
     return userId
 
 #Test
-# initialUser("다크시니")
+initialUser("다크시니")
 # saveQueryInShortTermMemory("건공이","나 밥먹음")
 # saveQueryInShortTermMemory("다크시니","나 공놀이함")
 # saveQueryInShortTermMemory("다크시니","나 활어 먹고 싶네")

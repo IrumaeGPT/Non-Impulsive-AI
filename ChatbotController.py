@@ -27,6 +27,10 @@ class Information:
     knowledge : str
     sourceEpisode : str
 
+@app.get("/test")
+async def test():
+    return "hello world"
+
 # initialize user id
 @app.post("/initialize")
 async def initialize(user: InitialInfos):

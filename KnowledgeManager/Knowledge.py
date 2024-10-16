@@ -1,11 +1,26 @@
 from neo4j import GraphDatabase
 import numpy as np
-from KnowledgeManager.embedding_model.modelUpload import model_upload
+from embedding_model.modelUpload import model_upload
+import os
+from dotenv import load_dotenv
 
-# Neo4j에 연결하기 위한 드라이버 설정
-uri = "bolt://localhost:7687"  # 기본적으로 Neo4j는 이 포트를 사용
-username = "neo4j"
-password = "mustrelease1234"  ##세영 : "mustrelease1234"
+current_directory = os.path.dirname(os.path.abspath(__file__))
+
+load_dotenv(dotenv_path=current_directory+"/../episodeManager/.env")
+
+host = os.getenv('host')
+neo4juser = os.getenv('neo4juser')
+neo4jpassword = os.getenv('neo4jpassword')
+
+# # Neo4j에 연결하기 위한 드라이버 설정 (local)
+# uri = "bolt://localhost:7687"  # 기본적으로 Neo4j는 이 포트를 사용
+# username = "neo4j"
+# password = "mustrelease1234"  
+
+# Neo4j에 연결하기 위한 드라이버 설정 (dev)
+uri = "bolt://"+host+":7687"  # 기본적으로 Neo4j는 이 포트를 사용
+username = neo4juser
+password = neo4jpassword  
 
 #embedding model
 embed_model=model_upload()
@@ -161,6 +176,7 @@ def updateKnowledgeGraph(relationTuples,sourceEpisodeId):
 
 driver = GraphDatabase.driver(uri, auth=(username, password))
 with driver.session() as session:
-    session.execute_write(community_detect)
+    session.execute_write(create_node,"철수",[3,5,7,6,8,4])
 # 드라이버 종료
 driver.close()
+
