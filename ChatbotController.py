@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from LLMController import LLMController
 # import episodeManager.api.episodeManagerLocal as episodeManager
-from episodeManager import episodeManager as episodeManger
+from episodeManager import episodeManager as episodeManager
 from KnowledgeManager import Knowledge as knowledgeManager
 from pydantic import BaseModel
 from typing import List
@@ -16,7 +16,7 @@ app = FastAPI()
 
 class InitialInfos(BaseModel):
     userId : str
-    infos : List[str] = []
+    # infos : List[str] = []
 
 class UserQuery(BaseModel):
     userId : str
@@ -31,10 +31,11 @@ class Information:
 @app.post("/initialize")
 async def initialize(user: InitialInfos):
     userId = user.userId
-    episodeManger.initialUser(userId)
-    for info in user.infos:
-        reflectNewKnowledge(userId, info, -1)
-    return {"status": "success", "message": "initialized user"}
+    episodeManager.initialUser(userId)
+    # for info in user.infos:
+    #     reflectNewKnowledge(userId, info, -1)
+    # return {"status": "success", "message": "initialized user"}
+    return 
 
 # input user query and get response
 @app.post("/chat")
@@ -47,19 +48,19 @@ async def inputUserQuery(userQuery : UserQuery):
 
     # Save query to short term memory
     # 에피소드 메니저 우선 비활성화
-    #episodeManager.saveQueryInShortTermMemory(userId, query)
+    episodeManager.saveQueryInShortTermMemory(userId, query)
 
     # Get previous dialouge
     # 에피소드 메니저 우선 비활성화
-    #memories = episodeManager.getShortTermMemories(userId)
+    memories = episodeManager.getShortTermMemories(userId)
 
     # Check context and update AI
-    isContextChanged, memories = await LLMController.checkContextChange(query)
-    print(memories)
+    isContextChanged = await LLMController.checkContextChange(query)
+    # print(memories)
     if isContextChanged:
         await updateAIChatbot(userId, memories)
         # 에피소드 메니저 우선 비활성화
-        #episodeManager.saveQueryInShortTermMemory(userId, query)
+        episodeManager.saveQueryInShortTermMemory(userId, query)
     return
 
     # When testing, end function here
@@ -98,9 +99,9 @@ async def getEpisodes(userId : str):
 # Update episode of the AI Chatbot
 async def updateAIChatbot(userId : str, memories : str):
     # 에피소드 메니저 우선 비활성화
-    # episodeId = episodeManager.createEpisode(userId)
+    episodeId = episodeManager.createEpisode(userId)
     summarized = await LLMController.summarize(memories)
-    await reflectNewKnowledge(userId, summarized, 0)
+    await reflectNewKnowledge(userId, summarized, episodeId)
     return
 
 # Reflect new Knowledge

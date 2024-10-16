@@ -92,6 +92,7 @@ def getShortTermMemories(userName):
     
     userId=find_userId(userName=userName)
     result=[]
+    result_str=""
     
     if(userId!=-1):
         
@@ -100,9 +101,12 @@ def getShortTermMemories(userName):
         cursor.execute(sql)  # 쿼리 실행
         result = cursor.fetchall()  # 모든 결과 가져오기
         
-        print(result)
-        
-    return result
+        for item in result:
+            result_str+=item["observation"]
+            result_str+="\n"
+        print(result_str)
+                
+    return result_str
 
 def createEpisode(userName):
     
@@ -112,7 +116,7 @@ def createEpisode(userName):
         cursor.execute(sql)
         longterm_memory = cursor.fetchall()
         if(len(longterm_memory)==0):
-            episodeId=1
+            episodeId=0
         else:
             episodeId = max(memory['episodeid'] for memory in longterm_memory)+1
         

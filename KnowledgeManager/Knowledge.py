@@ -1,6 +1,7 @@
 from neo4j import GraphDatabase
 import numpy as np
 from KnowledgeManager.embedding_model.modelUpload import model_upload
+
 # Neo4j에 연결하기 위한 드라이버 설정
 uri = "bolt://localhost:7687"  # 기본적으로 Neo4j는 이 포트를 사용
 username = "neo4j"
@@ -9,25 +10,34 @@ password = "mustrelease1234"  ##세영 : "mustrelease1234"
 #embedding model
 embed_model=model_upload()
 
-driver = GraphDatabase.driver(uri, auth=(username, password))
+# driver = GraphDatabase.driver(uri, auth=(username, password))
 
 # 노드 생성 함수
+
 def create_node(tx, word, embedding):
     query = """
-    MERGE (p:Word {name: $word, embedding: $embedding})
+    MERGE (p:Word {name: $word})
+    ON CREATE SET p.embedding = $embedding
     """
     tx.run(query, word=word, embedding=embedding)
+    
+    return 
+    # query = """
+    # MERGE (p:Word {name: $word, embedding: $embedding})
+    # """
+    # tx.run(query, word=word, embedding=embedding)
 
-    query = """
-    MERGE (p:distance_graph {name: $word, embedding: $embedding})
-    """
-    tx.run(query, word=word, embedding=embedding)
+    # query = """
+    # MERGE (p:distance_graph {name: $word, embedding: $embedding})
+    # """
+    # tx.run(query, word=word, embedding=embedding)
 
 # 관계 생성 함수
 def create_relationship(tx, fromWord, toWord, relationship, episodeId):
     query = """
     MATCH (w1:Word {name: $fromWord}), (w2:Word {name: $toWord})
     MERGE (w1)-[r:relation {relationship: $relationship , episodeId: $episodeId}]->(w2)
+    SET r.distance = 1
     """
     tx.run(query, fromWord=fromWord, toWord=toWord,relationship=relationship, episodeId=episodeId)
 
@@ -40,7 +50,7 @@ def delete_node(tx, word):
     tx.run(query, word=word)
 
 def community_detect(tx):
-    create_similarity(tx)
+    # create_similarity(tx)
 
     query='''
         CALL gds.graph.exists('embedding-similarity-graph')
@@ -57,7 +67,7 @@ def community_detect(tx):
     query='''
     CALL gds.graph.project(
         'embedding-similarity-graph',
-        ['distance_graph'],
+        ['Word'],
         {
             relation: {
                 properties: 'distance'
@@ -110,34 +120,47 @@ def calculate_cosine_distance(vec1, vec2):
     return cosine_similarity
 
 # 세션을 통해 노드와 관계를 생성
-with driver.session() as session:
-    # word = ["철수","새우"]
-    # releation="좋아한다."
-    # word_embedding = embed_model.encode(word)
-    # word_embedding=word_embedding.tolist()
+# with driver.session() as session:
+#     # word = ["철수","새우"]
+#     # releation="좋아한다."
+#     # word_embedding = embed_model.encode(word)
+#     # word_embedding=word_embedding.tolist()
 
-    # session.execute_write(create_node, word[0], word_embedding[0])
-    # session.execute_write(create_node, word[1], word_embedding[1])
-    # session.execute_write(create_relationship, word[0], word[1], releation, 123)
-    session.execute_write(community_detect)
+#     # session.execute_write(create_node, word[0], word_embedding[0])
+#     # session.execute_write(create_node, word[1], word_embedding[1])
+#     # session.execute_write(create_relationship, word[0], word[1], releation, 123)
+#     session.execute_write(community_detect)
 
 def updateKnowledgeGraph(relationTuples,sourceEpisodeId):
+    
+    driver = GraphDatabase.driver(uri, auth=(username, password))
+    
     #커뮤니티 노드 간선 생성
     for relation in relationTuples:
-        word=[relation[0],relation[1]]
-        edge = relation[2]
+        if None in relation:
+            print(relation)
+            continue
+        
+        word=[relation[0],relation[2]]
+        edge = relation[1]
         word_embedding = embed_model.encode(word)
         word_embedding=word_embedding.tolist()
         
         with driver.session() as session:
             session.execute_write(create_node,word[0],word_embedding[0])
-            session.execute_write(create_node,word[0],word_embedding[0])
+            session.execute_write(create_node,word[1],word_embedding[1])
             session.execute_write(create_relationship,word[0],word[1],edge,sourceEpisodeId)
             
-    #커뮤니티 탐지
-    session.execute_write(community_detect)
+    # #커뮤니티 탐지
+    # session.execute_write(community_detect)
     
+    # 드라이버 종료
+    driver.close()
+
     return
 
+driver = GraphDatabase.driver(uri, auth=(username, password))
+with driver.session() as session:
+    session.execute_write(community_detect)
 # 드라이버 종료
 driver.close()

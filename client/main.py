@@ -37,7 +37,6 @@ def chat(userId, query, isTest, checkContext):
 		"userId" : userId,
         "query" : query,
         "isTest" : isTest,
-        "checkContext" : checkContext
 	}
     r = requests.post(url, data=json.dumps(dic))
     return r.json()
@@ -52,8 +51,8 @@ def finish(userId):
 ###
 
 
-def insert_first_data():
-    userId = "tttt13"
+def insert_first_data(userId):
+    userId = userId
     #initialize(userId)
     with open("data/sample.txt", 'r', encoding='utf-8') as file:
         for line in file:
@@ -163,7 +162,8 @@ def eval_chatgpt():
 ###
 
 if __name__ == "__main__":
-    insert_first_data()
+    # initialize("홍길동")
+    insert_first_data("홍길동")
     # one_chat()
     # esval()
     # # eval_chatgpt()

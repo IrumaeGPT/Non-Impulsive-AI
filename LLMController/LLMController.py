@@ -29,11 +29,11 @@ async def checkContextChange(query : str) :
         value = memories.copy()
         memories = list()
         memories.append(query)
-        return True, value
+        return True
     elif "동일" in result:
-        return False, memories
+        return False
     else:
-        return False, memories
+        return False
 
 
 # Summarize input memories
