@@ -5,13 +5,12 @@ import sys
 import re
 from openai import OpenAI
 import os
-from dotenv import load_dotenv
 
-current_directory = os.path.dirname(os.path.abspath(__file__))
+# current_directory = os.path.dirname(os.path.abspath(__file__))
 
-load_dotenv(dotenv_path=current_directory+"../episodeManager/.env")
+# load_dotenv(dotenv_path=current_directory+"../episodeManager/.env")
 
-server_type=os.getenv('servertype')
+# server_type=os.getenv('servertype')
 
 client = OpenAI(api_key="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")
 
@@ -27,10 +26,7 @@ gpt_prompt = """다음 A와 B의 대화를 반영하여 다음의 올 A의 답�
 # Local
 from util import get_data, split_and_format_text
 
-if(server_type=="dev"):
-    base_url = "http://sw.uos.ac.kr:8000/"
-else:
-    base_url = "http://localhost:8000/"
+base_url = "http://sw.uos.ac.kr:8000/"
 
 ### ChatBotController
 def initialize(userId):
