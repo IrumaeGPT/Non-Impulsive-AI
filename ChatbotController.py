@@ -8,6 +8,7 @@ from typing import List
 
 # fastAPI server activate code
 # uvicorn ChatbotController:app --reload
+# uvicorn ChatbotController:app --reload --port 8000 --host 0.0.0.0
 
 # or try this
 # python -m uvicorn ChatbotController:app --reload
@@ -39,7 +40,7 @@ async def initialize(user: InitialInfos):
     # for info in user.infos:
     #     reflectNewKnowledge(userId, info, -1)
     # return {"status": "success", "message": "initialized user"}
-    return 
+    return
 
 # input user query and get response
 @app.post("/chat")
@@ -98,13 +99,14 @@ async def finishTalking(user: UserQuery):
 async def getEpisodes(userId : str):
     # episodes = episodeManager.getEpisodesMemory(userId)
     # return episodes
-    return 
+    return
 
 # Update episode of the AI Chatbot
 async def updateAIChatbot(userId : str, memories : str):
     # 에피소드 메니저 우선 비활성화
     episodeId = episodeManager.createEpisode(userId)
     summarized = await LLMController.summarize(memories)
+    print(summarized)
     await reflectNewKnowledge(userId, summarized, episodeId)
     return
 

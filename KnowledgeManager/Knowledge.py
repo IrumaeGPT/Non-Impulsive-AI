@@ -15,14 +15,14 @@ server_type = os.getenv('servertype')
 
 if(server_type=="dev"):
     # Neo4j에 연결하기 위한 드라이버 설정 (dev)
-    uri = "bolt://"+host+":7687"  # 기본적으로 Neo4j는 이 포트를 사용
+    uri = "bolt://localhost:7687"  # 기본적으로 Neo4j는 이 포트를 사용
     username = neo4juser
-    password = neo4jpassword  
-else:   
+    password = neo4jpassword
+else:
     # Neo4j에 연결하기 위한 드라이버 설정 (local)
     uri = "bolt://localhost:7687"  # 기본적으로 Neo4j는 이 포트를 사용
     username = "neo4j"
-    password = "mustrelease1234"  
+    password = "mustrelease1234"
 
 #embedding model
 embed_model=model_upload()
@@ -37,8 +37,8 @@ def create_node(tx, word, embedding):
     ON CREATE SET p.embedding = $embedding
     """
     tx.run(query, word=word, embedding=embedding)
-    
-    return 
+
+    return
     # query = """
     # MERGE (p:Word {name: $word, embedding: $embedding})
     # """
@@ -107,7 +107,7 @@ def community_detect(tx):
             SET n.community_id = $communityId
         '''
         tx.run(query,nodeId=record["nodeId"],communityId=record["communityId"])
-        
+
     # N번 노드 속성에 community 부여하기
 
 def create_similarity(tx):
@@ -145,28 +145,28 @@ def calculate_cosine_distance(vec1, vec2):
     return cosine_similarity
 
 def updateKnowledgeGraph(relationTuples,sourceEpisodeId):
-    
+
     driver = GraphDatabase.driver(uri, auth=(username, password))
-    
+
     #커뮤니티 노드 간선 생성
     for relation in relationTuples:
         if None in relation:
             print(relation)
             continue
-        
+
         word=[relation[0],relation[2]]
         edge = relation[1]
         word_embedding = embed_model.encode(word)
         word_embedding=word_embedding.tolist()
-        
+
         with driver.session() as session:
             session.execute_write(create_node,word[0],word_embedding[0])
             session.execute_write(create_node,word[1],word_embedding[1])
             session.execute_write(create_relationship,word[0],word[1],edge,sourceEpisodeId)
-            
-    # #커뮤니티 탐지
-    # session.execute_write(community_detect)
-    
+
+    #커뮤니티 탐지
+    session.execute_write(community_detect)
+
     # 드라이버 종료
     driver.close()
 
