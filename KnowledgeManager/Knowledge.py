@@ -1,6 +1,6 @@
 from neo4j import GraphDatabase
 import numpy as np
-from embedding_model.modelUpload import model_upload
+from KnowledgeManager.embedding_model.modelUpload import model_upload
 import os
 from dotenv import load_dotenv
 
@@ -11,16 +11,18 @@ load_dotenv(dotenv_path=current_directory+"/../episodeManager/.env")
 host = os.getenv('host')
 neo4juser = os.getenv('neo4juser')
 neo4jpassword = os.getenv('neo4jpassword')
+server_type = os.getenv('servertype')
 
-# # Neo4j에 연결하기 위한 드라이버 설정 (local)
-# uri = "bolt://localhost:7687"  # 기본적으로 Neo4j는 이 포트를 사용
-# username = "neo4j"
-# password = "mustrelease1234"  
-
-# Neo4j에 연결하기 위한 드라이버 설정 (dev)
-uri = "bolt://"+host+":7687"  # 기본적으로 Neo4j는 이 포트를 사용
-username = neo4juser
-password = neo4jpassword  
+if(server_type=="dev"):
+    # Neo4j에 연결하기 위한 드라이버 설정 (dev)
+    uri = "bolt://"+host+":7687"  # 기본적으로 Neo4j는 이 포트를 사용
+    username = neo4juser
+    password = neo4jpassword  
+else:   
+    # Neo4j에 연결하기 위한 드라이버 설정 (local)
+    uri = "bolt://localhost:7687"  # 기본적으로 Neo4j는 이 포트를 사용
+    username = "neo4j"
+    password = "mustrelease1234"  
 
 #embedding model
 embed_model=model_upload()
@@ -99,6 +101,14 @@ def community_detect(tx):
     result=tx.run(query)
     for record in result:
         print(record["nodeId"],record["communityId"])
+        query='''
+            MATCH (n)
+            WHERE id(n) = $nodeId
+            SET n.community_id = $communityId
+        '''
+        tx.run(query,nodeId=record["nodeId"],communityId=record["communityId"])
+        
+    # N번 노드 속성에 community 부여하기
 
 def create_similarity(tx):
     query = "MATCH (w:distance_graph) RETURN id(w) AS id, w.embedding AS embedding"
@@ -134,18 +144,6 @@ def calculate_cosine_distance(vec1, vec2):
 
     return cosine_similarity
 
-# 세션을 통해 노드와 관계를 생성
-# with driver.session() as session:
-#     # word = ["철수","새우"]
-#     # releation="좋아한다."
-#     # word_embedding = embed_model.encode(word)
-#     # word_embedding=word_embedding.tolist()
-
-#     # session.execute_write(create_node, word[0], word_embedding[0])
-#     # session.execute_write(create_node, word[1], word_embedding[1])
-#     # session.execute_write(create_relationship, word[0], word[1], releation, 123)
-#     session.execute_write(community_detect)
-
 def updateKnowledgeGraph(relationTuples,sourceEpisodeId):
     
     driver = GraphDatabase.driver(uri, auth=(username, password))
@@ -176,7 +174,7 @@ def updateKnowledgeGraph(relationTuples,sourceEpisodeId):
 
 driver = GraphDatabase.driver(uri, auth=(username, password))
 with driver.session() as session:
-    session.execute_write(create_node,"철수",[3,5,7,6,8,4])
+    session.execute_write(community_detect)
 # 드라이버 종료
 driver.close()
 

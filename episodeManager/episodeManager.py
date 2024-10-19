@@ -12,24 +12,25 @@ password = os.getenv('password')
 devuser = os.getenv('devuser')
 devpassword = os.getenv('devpassword')
 host = os.getenv('host')
+server_type=os.getenv('servertype')
 
-# # MySQL local 서버에 연결
-# connection = mysql.connector.connect(
-#     host="localhost",       # MySQL 서버 호스트 주소 (로컬이면 'localhost')
-#     user=user,   # MySQL 사용자 이름
-#     password=password, # MySQL 비밀번호
-#     database="aicharacter",  # 사용할 데이터베이스 이름
-#     port=4000 #포트번호
-# )
-
-# MySQL Dev 서버에 연결
-connection = mysql.connector.connect(
+if(server_type=="dev"):
+    connection = mysql.connector.connect(
     host=host,       # MySQL 서버 호스트 주소 (로컬이면 'localhost')
     user=devuser,   # MySQL 사용자 이름
     password=devpassword, # MySQL 비밀번호
     database="aicharacter",  # 사용할 데이터베이스 이름
     port=3306 #포트번호
 )
+else:
+# MySQL local 서버에 연결
+    connection = mysql.connector.connect(
+        host="localhost",       # MySQL 서버 호스트 주소 (로컬이면 'localhost')
+        user=user,   # MySQL 사용자 이름
+        password=password, # MySQL 비밀번호
+        database="aicharacter",  # 사용할 데이터베이스 이름
+        port=4000 #포트번호
+    )
 
 if connection.is_connected():
     print("MySQL에 성공적으로 연결되었습니다.")
@@ -159,7 +160,7 @@ def find_userId(userName):
     return userId
 
 #Test
-initialUser("다크시니")
+# initialUser("다크시니")
 # saveQueryInShortTermMemory("건공이","나 밥먹음")
 # saveQueryInShortTermMemory("다크시니","나 공놀이함")
 # saveQueryInShortTermMemory("다크시니","나 활어 먹고 싶네")

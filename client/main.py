@@ -4,6 +4,14 @@ import ast
 import sys
 import re
 from openai import OpenAI
+import os
+from dotenv import load_dotenv
+
+current_directory = os.path.dirname(os.path.abspath(__file__))
+
+load_dotenv(dotenv_path=current_directory+"../episodeManager/.env")
+
+server_type=os.getenv('servertype')
 
 client = OpenAI(api_key="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")
 
@@ -19,7 +27,10 @@ gpt_prompt = """다음 A와 B의 대화를 반영하여 다음의 올 A의 답�
 # Local
 from util import get_data, split_and_format_text
 
-base_url = "http://sw.uos.ac.kr:8000/"
+if(server_type=="dev"):
+    base_url = "http://sw.uos.ac.kr:8000/"
+else:
+    base_url = "http://localhost:8000/"
 
 ### ChatBotController
 def initialize(userId):
@@ -162,8 +173,8 @@ def eval_chatgpt():
 ###
 
 if __name__ == "__main__":
-    # initialize("홍길동")
-    insert_first_data("홍길동")
+    initialize("영희")
+    insert_first_data("영희")
     # one_chat()
     # esval()
     # # eval_chatgpt()
