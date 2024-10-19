@@ -165,7 +165,7 @@ def updateKnowledgeGraph(relationTuples,sourceEpisodeId):
             session.execute_write(create_relationship,word[0],word[1],edge,sourceEpisodeId)
 
     #커뮤니티 탐지
-    session.execute_write(community_detect)
+    #session.execute_write(community_detect)
 
     # 드라이버 종료
     driver.close()

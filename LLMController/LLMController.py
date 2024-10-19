@@ -41,10 +41,14 @@ async def summarize(memories : str):
     memories = "\n".join(memories)
     response = client.chat.completions.create(
     model="gpt-4o",
-    temperature=0.5,
-    top_p=0.5,
+    temperature=0.8,
+    top_p=0.8,
     messages=[
         {"role": "system", "content": prompt.summarizePrompt},
+        {"role": "user", "content": prompt.summarizeSample},
+        {"role": "assistant", "content": prompt.summarizeAwnser},
+        {"role": "user", "content": prompt.summarizeSample2},
+        {"role": "assistant", "content": prompt.summarizeAwnser2},
         {"role": "user", "content": memories},
     ])
     return response.choices[0].message.content
