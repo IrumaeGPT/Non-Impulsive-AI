@@ -27,6 +27,7 @@ gpt_prompt = """다음 A와 B의 대화를 반영하여 다음의 올 A의 답�
 from util import get_data, split_and_format_text
 
 base_url = "http://sw.uos.ac.kr:8000/"
+# base_url = "http://localhost:8000/"
 
 ### ChatBotController
 def initialize(userId):
