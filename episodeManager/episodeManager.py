@@ -34,7 +34,7 @@ else:
 
 if connection.is_connected():
     print("MySQL에 성공적으로 연결되었습니다.")
-    
+
 cursor = connection.cursor(dictionary=True) #데이터를 가져올 때 dict 형태로 가지고 오기
 
 create_table_user = """
@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS longterm (
     id INT AUTO_INCREMENT PRIMARY KEY,
     observation VARCHAR(200) NOT NULL,
     episodeid INT NOT NULL,
-    user_id INT, 
+    user_id INT,
     CONSTRAINT fk_user_longterm FOREIGN KEY (user_id) REFERENCES user(id)
 );
 
@@ -60,7 +60,7 @@ create_table_shorterm="""
 CREATE TABLE IF NOT EXISTS shorterm (
     id INT AUTO_INCREMENT PRIMARY KEY,
     observation VARCHAR(200) NOT NULL,
-    user_id INT, 
+    user_id INT,
     CONSTRAINT fk_user_shorterm FOREIGN KEY (user_id) REFERENCES user(id)
 );
 """
@@ -72,55 +72,55 @@ cursor.execute(create_table_shorterm)
 def initialUser(userName):
     user_info=[userName]
     sql = "INSERT INTO user (name) VALUES (%s)"
-    
+
     cursor.execute(sql,user_info)
     connection.commit()
-    
+
     print("데이터가 성공적으로 삽입되었습니다.")
     print(user_info)
-    
+
     return
 
 def saveQueryInShortTermMemory(userName, query):
 
     userId=find_userId(userName=userName)
     result=[]
-    
+
     if(userId!=-1):
-    
+
         shorterm_info=[query,userId]
-        
+
         sql = "INSERT INTO shorterm (observation,user_id) VALUES (%s,%s)"
-        
+
         cursor.execute(sql,shorterm_info)
         connection.commit()
-        
+
         print("데이터가 성공적으로 삽입되었습니다.")
         print(shorterm_info)
-    return 
+    return
 
 def getShortTermMemories(userName):
-    
+
     userId=find_userId(userName=userName)
     result=[]
     result_str=""
-    
+
     if(userId!=-1):
-        
+
         sql = f"SELECT * FROM shorterm WHERE user_id = '{userId}'"
-        
+
         cursor.execute(sql)  # 쿼리 실행
         result = cursor.fetchall()  # 모든 결과 가져오기
-        
+
         for item in result:
             result_str+=item["observation"]
             result_str+="\n"
         print(result_str)
-                
+
     return result_str
 
 def createEpisode(userName):
-    
+
     userId=find_userId(userName)
     if(userId != -1):
         sql = f"SELECT * FROM longterm WHERE user_id = '{userId}'"
@@ -130,32 +130,32 @@ def createEpisode(userName):
             episodeId=0
         else:
             episodeId = max(memory['episodeid'] for memory in longterm_memory)+1
-        
+
         sql = f"SELECT * FROM shorterm WHERE user_id = '{userId}'"
         cursor.execute(sql)
         shorterm_memory = cursor.fetchall()
-        
+
         for memory in shorterm_memory:
             sql = "INSERT INTO longterm (observation, user_id, episodeid) VALUES (%s, %s, %s)"
             cursor.execute(sql, (memory['observation'], memory['user_id'],episodeId))
-            
+
         sql = f"DELETE FROM shorterm WHERE user_id = '{userId}'"
         cursor.execute(sql)
-        
+
         connection.commit()
         return episodeId
-    
-    return -1 
+
+    return -1
 
 def find_userId(userName):
     sql = f"SELECT * FROM user WHERE name = '{userName}'"
-    
+
     cursor.execute(sql)  # 쿼리 실행
     result = cursor.fetchall()  # 모든 결과 가져오기
 
     if(len(result)==0):
         return -1
-    
+
     userId=result[0]["id"]
     return userId
 
@@ -168,4 +168,3 @@ def find_userId(userName):
 # getShortTermMemories("다크시니")
 
 # createEpisode("다크시니")
-    
