@@ -13,6 +13,8 @@ neo4juser = os.getenv('neo4juser')
 neo4jpassword = os.getenv('neo4jpassword')
 server_type = os.getenv('servertype')
 
+communitys=[]
+
 if(server_type=="dev"):
     # Neo4j에 연결하기 위한 드라이버 설정 (dev)
     uri = "bolt://localhost:7687"  # 기본적으로 Neo4j는 이 포트를 사용
@@ -97,7 +99,7 @@ def community_detect(tx):
     RETURN id(gds.util.asNode(nodeId)) AS nodeId, communityId
     ORDER BY communityId, nodeId
     '''
-
+    
     result=tx.run(query)
     for record in result:
         print(record["nodeId"],record["communityId"])
@@ -108,6 +110,39 @@ def community_detect(tx):
         '''
         tx.run(query,nodeId=record["nodeId"],communityId=record["communityId"])
 
+    community_local=[]
+    
+    query='''
+    MATCH (w:Word)  // 'Word' 레이블을 가진 노드와 매칭
+    RETURN id(w) AS nodeId, w.community_id As community_id , w.embedding AS embedding
+    ORDER BY community_id, nodeId
+    '''
+    result = tx.run(query)
+    for record in result:
+        node_id=record["nodeId"]
+        community_id=record['community_id']
+        embedding=record['embedding']
+        for community in community_local:
+            isExist=False
+            if(community["id"]==community_id):
+                #있으면 해야 할 것들
+                isExist=True
+                community["node"].append(node_id)
+                for i in range(len(community["embedding"])):
+                    community["embedding"][i]+=embedding[i]
+        if(len(community_local)==0 or not isExist):
+            community_local.append({"id":community_id,"node":[node_id],"embedding":embedding})
+    
+    for item in community_local:
+        for i in range(len(item["embedding"])):
+            item["embedding"][i]/=len(item["node"])
+        
+    for i in range(len(community_local)):
+        print(str(community_local[i]["id"])+"번 커뮤니티 노드 번호: " + str(community_local[i]["node"]))
+    
+    global communitys
+    communitys=community_local
+    return
     # N번 노드 속성에 community 부여하기
 
 def create_similarity(tx):
@@ -164,17 +199,73 @@ def updateKnowledgeGraph(relationTuples,sourceEpisodeId):
             session.execute_write(create_node,word[1],word_embedding[1])
             session.execute_write(create_relationship,word[0],word[1],edge,sourceEpisodeId)
 
-    #커뮤니티 탐지
-    #session.execute_write(community_detect)
+    # 커뮤니티 탐지
+    with driver.session() as session:
+        session.execute_write(community_detect)
 
     # 드라이버 종료
     driver.close()
 
     return
 
+def getMemoryByKnowlegeGraph(query):
+    
+    driver = GraphDatabase.driver(uri, auth=(username, password))
+    
+    word=[query]
+    word_embedding = embed_model.encode(word)
+    word_embedding=(word_embedding.tolist())[0]
+    
+    max_idx=0
+    max_cosine=0.0
+    for i in range(len(communitys)):
+        community_embedding=communitys[i]["embedding"]
+        cosine=calculate_cosine_distance(community_embedding,word_embedding)
+        if(max_cosine<=cosine):
+            max_idx=i
+            max_cosine=cosine
+
+    similar_community=communitys[max_idx]
+    
+    print("비슷한 커뮤니티")
+    print(similar_community)
+    
+    node_result=[]
+    episodeIdList=[]
+    
+    for i in range(len(similar_community["node"])):
+        nodeId=similar_community["node"][i]
+        with driver.session() as session:
+            query='''
+                MATCH (n)-[r]->(m)
+                WHERE id(n) = $nodeId
+                RETURN n, m, r
+            '''
+            result=session.run(query,nodeId=nodeId)
+            for record in result:
+                episodeIdList.append(record["r"]["episodeId"])
+                node_result.append(record["n"]["name"]+" "+record["m"]["name"]+" "+record["r"]["relationship"])
+                
+    #없으면 반대로
+    if(len(node_result)==0):
+        with driver.session() as session:
+            query='''
+                MATCH (n)-[r]-(m)
+                WHERE id(n) = $nodeId
+                RETURN n, m, r
+            '''
+            result=session.run(query,nodeId=nodeId)
+            for record in result:
+                episodeIdList.append(record["r"]["episodeId"])
+                node_result.append(record["m"]["name"]+" "+record["n"]["name"]+" "+record["r"]["relationship"])
+                
+    return node_result,episodeIdList
+
+
 driver = GraphDatabase.driver(uri, auth=(username, password))
 with driver.session() as session:
     session.execute_write(community_detect)
+
 # 드라이버 종료
 driver.close()
 
