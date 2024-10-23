@@ -51,34 +51,27 @@ async def inputUserQuery(userQuery : UserQuery):
     isTest = userQuery.isTest
     recalledInformations = List[Information]
 
-    # Save query to short term memory
-    # 에피소드 메니저 우선 비활성화
-    episodeManager.saveQueryInShortTermMemory(userId, query)
-
-    # Get previous dialouge
-    # 에피소드 메니저 우선 비활성화
-    memories = episodeManager.getShortTermMemories(userId)
-
-    # Check context and update AI
-    isContextChanged = await LLMController.checkContextChange(query)
-    if isContextChanged:
-        await updateAIChatbot(userId, memories)
-        # 에피소드 메니저 우선 비활성화
-        episodeManager.saveQueryInShortTermMemory(userId, query)
-
     # When testing, end function here
     if isTest:
+        # Save query to short term memory
+        episodeManager.saveQueryInShortTermMemory(userId, query)
+
+        # Get previous dialouge
+        memories = episodeManager.getShortTermMemories(userId)
+
+        # Check context and update AI
+        isContextChanged = await LLMController.checkContextChange(query)
+        if isContextChanged:
+            await updateAIChatbot(userId, memories)
+            episodeManager.saveQueryInShortTermMemory(userId, query)
         return {"status": "success", "response":"none"}
 
-    knowleage, episodeIdList = knowledgeManager.getMemoryByKnowlegeGraph(query)
-    episodeIdList = set(episodeIdList)
-    print("<추출된 지식그래프 텍스트>\n", knowleage)
-    print("<추출된 episodeIdList>\n", episodeIdList)
+    knowldgeMemories, episodeMemories = episodeManager.retrieveEpisodes(userId, query)
+    print("<추출된 지식그래프 텍스트>\n", knowldgeMemories)
+    print("<추출된 episodeIdList>\n", episodeMemories)
     return {"status": "success", "response":"none"}
 
     # Retrieve episodes about query and choose topics
-    #episodes =  episodeManager.retrieveEpisodes(userId, query)
-    #retrievedEpisodes[query] = episodes
     #topics =  await LLMController.chooseTopicToTalk(query, memories, episodes)
 
     # Retrieve episodes about each topic

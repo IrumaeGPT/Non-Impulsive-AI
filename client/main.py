@@ -168,8 +168,8 @@ def eval_chatgpt():
 ###
 
 if __name__ == "__main__":
-    #initialize("116")
-    #insert_first_data("116")
+    #initialize("117")
+    #insert_first_data("117")
     one_chat("116")
     # esval()
     # # eval_chatgpt()

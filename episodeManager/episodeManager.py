@@ -167,6 +167,7 @@ def find_userId(userName):
 def retrieveEpisodes(userName,query):
     episodeMemories=[]
     knowldgeMemories, episodeIds = getMemoryByKnowlegeGraph(query)
+    episodeIds = set(episodeIds)
     userId=find_userId(userName)
     
     for value in episodeIds:
@@ -176,8 +177,6 @@ def retrieveEpisodes(userName,query):
         for item in result:
             episodeMemories.append(item["observation"])
             
-    print(knowldgeMemories)
-    print(episodeMemories)
     return knowldgeMemories, episodeMemories
 
 # retrieveEpisodes("냠냠","맥주 먹고싶다..")
