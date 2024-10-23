@@ -178,9 +178,10 @@ def retrieveEpisodes(userName,query):
             
     print(knowldgeMemories)
     print(episodeMemories)
+    
     return knowldgeMemories, episodeMemories
 
-# retrieveEpisodes("냠냠","맥주 먹고싶다..")
+retrieveEpisodes("냠냠","맥주 먹고싶다..")
 
 # saveQueryInShortTermMemory("다크시니","나 공놀이함")
 # saveQueryInShortTermMemory("다크시니","나 활어 먹고 싶네")
