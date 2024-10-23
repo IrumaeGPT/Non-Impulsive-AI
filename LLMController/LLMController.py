@@ -84,8 +84,8 @@ async def chooseTopicToTalk(query, knowldgeMemories, episodeMemories):
         + "<입력된 문장>\n" + query
     response = client.chat.completions.create(
     model="gpt-4o",
-    temperature=0.5,
-    top_p=0.5,
+    temperature=0.8,
+    top_p=0.8,
     messages=[
         {"role": "system", "content": prompt.topicPrompt},
         {"role": "user", "content": userPrompt},
@@ -110,5 +110,4 @@ async def generateResponse(query : str, topics : list[str], retrievedKnowldgeMem
         {"role": "system", "content": prompt.responsePrompt},
         {"role": "user", "content": userPrompt},
     ])
-    print(userPrompt)
     return response.choices[0].message.content

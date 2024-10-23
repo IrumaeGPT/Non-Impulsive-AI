@@ -76,10 +76,9 @@ def one_chat(userId):
         text = input("AI 캐릭터에게 할 질문을 입력하세요(종료 - q) :\n")
     # finish(userId)
 
-def eval():
+def eval(userId):
     score = 0
     count = 0
-    userId = "tttt13"
     with open('data/test.txt', 'r',encoding='utf-8') as file1, open('data/awnser.txt', 'r',encoding='utf-8') as file2:
         print("Evaluation...")
         while True:
@@ -168,8 +167,9 @@ def eval_chatgpt():
 ###
 
 if __name__ == "__main__":
-    #initialize("117")
-    #insert_first_data("117")
-    one_chat("116")
-    # esval()
-    # # eval_chatgpt()
+    userId = "116"
+    #initialize(userId)
+    #insert_first_data(userId)
+    # one_chat(userId)
+    #eval(userId)
+    eval_chatgpt()
