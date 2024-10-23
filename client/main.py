@@ -68,13 +68,11 @@ def insert_first_data(userId):
             chat(userId, line, True, True)
 
 
-def one_chat():
-    userId = "tttt13"
-    text = ""
+def one_chat(userId):
     text = input("AI 캐릭터에게 할 질문을 입력하세요(종료 - q) :\n")
     while text != "q":
         rps = chat(userId, "B: " + text, False, True)
-        print("답변 :\n" + rps["response"] + "\n-------------------------\n")
+        #print("답변 :\n" + rps["response"] + "\n-------------------------\n")
         text = input("AI 캐릭터에게 할 질문을 입력하세요(종료 - q) :\n")
     # finish(userId)
 
@@ -170,8 +168,8 @@ def eval_chatgpt():
 ###
 
 if __name__ == "__main__":
-    initialize("냠냠")
-    insert_first_data("냠냠")
-    # one_chat()
+    #initialize("116")
+    #insert_first_data("116")
+    one_chat("116")
     # esval()
     # # eval_chatgpt()

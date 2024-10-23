@@ -61,32 +61,36 @@ async def inputUserQuery(userQuery : UserQuery):
 
     # Check context and update AI
     isContextChanged = await LLMController.checkContextChange(query)
-    # print(memories)
     if isContextChanged:
         await updateAIChatbot(userId, memories)
         # 에피소드 메니저 우선 비활성화
         episodeManager.saveQueryInShortTermMemory(userId, query)
-    return
 
     # When testing, end function here
     if isTest:
         return {"status": "success", "response":"none"}
 
+    knowleage, episodeIdList = knowledgeManager.getMemoryByKnowlegeGraph(query)
+    episodeIdList = set(episodeIdList)
+    print("<추출된 지식그래프 텍스트>\n", knowleage)
+    print("<추출된 episodeIdList>\n", episodeIdList)
+    return {"status": "success", "response":"none"}
+
     # Retrieve episodes about query and choose topics
-    episodes =  episodeManager.retrieveEpisodes(userId, query)
-    retrievedEpisodes[query] = episodes
-    topics =  await LLMController.chooseTopicToTalk(query, memories, episodes)
+    #episodes =  episodeManager.retrieveEpisodes(userId, query)
+    #retrievedEpisodes[query] = episodes
+    #topics =  await LLMController.chooseTopicToTalk(query, memories, episodes)
 
     # Retrieve episodes about each topic
-    for topic in topics:
-        episodes =  episodeManager.retrieveEpisodes(userId, topic)
-        retrievedEpisodes[topic] = episodes
+    #for topic in topics:
+    #    episodes =  episodeManager.retrieveEpisodes(userId, topic)
+    #    retrievedEpisodes[topic] = episodes
 
     # Generate response and save it to short term memory
-    response = await LLMController.generateResponse(query, memories, topics, retrievedEpisodes)
-    # episodeManager.saveQueryInShortTermMemory(userId, response)
+    #response = await LLMController.generateResponse(query, memories, topics, retrievedEpisodes)
+    #episodeManager.saveQueryInShortTermMemory(userId, response)
 
-    return {"status": "success", "response": response, "message": "get response from chatbot"}
+    #return {"status": "success", "response": response, "message": "get response from chatbot"}
 
 # finish chat
 @app.post("/finish")

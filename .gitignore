@@ -1,9 +1,11 @@
 venv/
 ./.DS_Store
-./__pycache__
-./LLMController/__pycache__
-./episodeManager/api/__pycache__
-./episodeManager/model/__pycache__
-./episodeManager/chroma
+./__pycache__/
+./LLMController/__pycache__/
+./episodeManager/api/__pycache__/
+./episodeManager/model/__pycache__/
+./episodeManager/chroma/
 .env
-./KonwlegeManager/__pycache__
+./KonwlegeManager/__pycache__/
+./KnowledgeManager/embedding_model/__pycache__/
+./episodeManager/__pycache__/
