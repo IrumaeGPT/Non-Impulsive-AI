@@ -77,14 +77,11 @@ async def extractRelationship(summarized_text : str):
     else:
         raise ValueError("관계 추출 부분에서 에러 발생", run.status)
 
-async def chooseTopicToTalk(query, memories, episodes):
+async def chooseTopicToTalk(query, knowldgeMemories, episodeMemories):
     client = OpenAI(api_key="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")
-    episodeString = ""
-    for episode in episodes:
-        episodeString += episode
-    print(memories)
-    userPrompt ="<입력된 문장>\n" + query + "\n\n" \
-        + "<갖고 있는 기억>\n" + episodeString
+    userPrompt ="<지식>\n" + knowldgeMemories + "\n\n" \
+        + "<관련 대화 내용>\n" + episodeMemories \
+        + "<입력된 문장>\n" + query
     response = client.chat.completions.create(
     model="gpt-4o",
     temperature=0.5,
@@ -98,17 +95,13 @@ async def chooseTopicToTalk(query, memories, episodes):
 
     return topics
 
-async def generateResponse(query : str, memories : str, topics : list[str], retrievedEpisodes : dict):
+async def generateResponse(query : str, topics : list[str], retrievedKnowldgeMemories : list[str], retrievedEpisodes : list[str]):
     client = OpenAI(api_key="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")
-    userPrompt = "\n\n" + "<입력된 문장>\n" + query + "\n\n"
-    i = 1
-    for topic in topics:
-        memory = ""
-        for episode in retrievedEpisodes[topic]:
-            memory+=episode
-        userPrompt += "<답변주제" + str(i) + ">\n" + topic + "\n\n" + \
-            "<갖고 있는 관련 기억>\n" + memory + "\n\n"
-        i += 1
+    userPrompt = "<입력된 문장>\n" + query + "\n\n"
+    for i in range(len(topics)):
+        userPrompt += "<답변주제" + str(i) + ">\n" + topics[i] + "\n\n" + \
+            "<지식>\n" + '\n'.join(retrievedKnowldgeMemories[i]) + "\n\n" \
+            + "<관련 대화 내용>\n" + '\n'.join(retrievedEpisodes[i]) + '\n\n'
     response = client.chat.completions.create(
     model="gpt-4o",
     temperature=0.5,

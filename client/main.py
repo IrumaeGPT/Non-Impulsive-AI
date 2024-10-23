@@ -72,7 +72,7 @@ def one_chat(userId):
     text = input("AI 캐릭터에게 할 질문을 입력하세요(종료 - q) :\n")
     while text != "q":
         rps = chat(userId, "B: " + text, False, True)
-        #print("답변 :\n" + rps["response"] + "\n-------------------------\n")
+        print("답변 :\n" + rps["response"] + "\n-------------------------\n")
         text = input("AI 캐릭터에게 할 질문을 입력하세요(종료 - q) :\n")
     # finish(userId)
 

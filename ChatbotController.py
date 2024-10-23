@@ -67,23 +67,30 @@ async def inputUserQuery(userQuery : UserQuery):
         return {"status": "success", "response":"none"}
 
     knowldgeMemories, episodeMemories = episodeManager.retrieveEpisodes(userId, query)
-    print("<추출된 지식그래프 텍스트>\n", knowldgeMemories)
-    print("<추출된 episodeIdList>\n", episodeMemories)
-    return {"status": "success", "response":"none"}
 
     # Retrieve episodes about query and choose topics
-    #topics =  await LLMController.chooseTopicToTalk(query, memories, episodes)
+    topics =  await LLMController.chooseTopicToTalk(query, '\n'.join(knowldgeMemories), '\n'.join(episodeMemories))
 
     # Retrieve episodes about each topic
-    #for topic in topics:
-    #    episodes =  episodeManager.retrieveEpisodes(userId, topic)
-    #    retrievedEpisodes[topic] = episodes
+    retrievedEpisodes = [None] * len(topics)
+    retrievedKnowldgeMemories = [None] * len(topics)
+    # 중복된 기억은 모두 제거 하기 위해 이중 반복문
+    for i in range(len(topics)):
+        retrievedKnowldgeMemories[i], retrievedEpisodes[i] = episodeManager.retrieveEpisodes(userId, topics[i])
+        for j in range(i):
+            retrievedKnowldgeMemories[i] = [value for value in retrievedKnowldgeMemories[i] if value not in retrievedKnowldgeMemories[j]]
+            retrievedEpisodes[i] = [value for value in retrievedEpisodes[i] if value not in retrievedEpisodes[j]]
+
+    for i in range(len(topics)):
+        print("Topic : ", topics[i])
+        print("<추출된 지식그래프 텍스트>\n", retrievedKnowldgeMemories[i])
+        print("<추출된 episodeIdList>\n", retrievedEpisodes[i])
 
     # Generate response and save it to short term memory
-    #response = await LLMController.generateResponse(query, memories, topics, retrievedEpisodes)
+    response = await LLMController.generateResponse(query, topics, retrievedKnowldgeMemories, retrievedEpisodes)
     #episodeManager.saveQueryInShortTermMemory(userId, response)
 
-    #return {"status": "success", "response": response, "message": "get response from chatbot"}
+    return {"status": "success", "response": response, "message": "get response from chatbot"}
 
 # finish chat
 @app.post("/finish")

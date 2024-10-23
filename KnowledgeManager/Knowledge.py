@@ -227,8 +227,8 @@ def getMemoryByKnowlegeGraph(query):
 
     similar_community=communitys[max_idx]
     
-    print("비슷한 커뮤니티")
-    print(similar_community)
+    #print("비슷한 커뮤니티")
+    #print(similar_community)
     
     node_result=[]
     episodeIdList=[]
