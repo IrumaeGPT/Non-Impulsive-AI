@@ -169,18 +169,18 @@ def retrieveEpisodes(userName,query):
     knowldgeMemories, episodeIds = getMemoryByKnowlegeGraph(query)
     episodeIds = set(episodeIds)
     userId=find_userId(userName)
-    
+
     for value in episodeIds:
         sql = f"SELECT * FROM longterm WHERE user_id='{userId}' and episodeId='{value}'"
         cursor.execute(sql)  # 쿼리 실행
         result = cursor.fetchall()  # 모든 결과 가져오기
         for item in result:
             episodeMemories.append(item["observation"])
-            
+
     return knowldgeMemories, episodeMemories
 
-# retrieveEpisodes("냠냠","맥주 먹고싶다..")
 
+#retrieveEpisodes("냠냠","맥주 먹고싶다..")
 # saveQueryInShortTermMemory("다크시니","나 공놀이함")
 # saveQueryInShortTermMemory("다크시니","나 활어 먹고 싶네")
 # saveQueryInShortTermMemory("다크시니","나는야 까만 고양이")

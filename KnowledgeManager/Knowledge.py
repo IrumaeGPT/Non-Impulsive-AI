@@ -99,7 +99,7 @@ def community_detect(tx):
     RETURN id(gds.util.asNode(nodeId)) AS nodeId, communityId
     ORDER BY communityId, nodeId
     '''
-    
+
     result=tx.run(query)
     for record in result:
         print(record["nodeId"],record["communityId"])
@@ -111,7 +111,7 @@ def community_detect(tx):
         tx.run(query,nodeId=record["nodeId"],communityId=record["communityId"])
 
     community_local=[]
-    
+
     query='''
     MATCH (w:Word)  // 'Word' 레이블을 가진 노드와 매칭
     RETURN id(w) AS nodeId, w.community_id As community_id , w.embedding AS embedding
@@ -132,14 +132,14 @@ def community_detect(tx):
                     community["embedding"][i]+=embedding[i]
         if(len(community_local)==0 or not isExist):
             community_local.append({"id":community_id,"node":[node_id],"embedding":embedding})
-    
+
     for item in community_local:
         for i in range(len(item["embedding"])):
             item["embedding"][i]/=len(item["node"])
-        
+
     for i in range(len(community_local)):
         print(str(community_local[i]["id"])+"번 커뮤니티 노드 번호: " + str(community_local[i]["node"]))
-    
+
     global communitys
     communitys=community_local
     return
@@ -209,56 +209,63 @@ def updateKnowledgeGraph(relationTuples,sourceEpisodeId):
     return
 
 def getMemoryByKnowlegeGraph(query):
-    
+
     driver = GraphDatabase.driver(uri, auth=(username, password))
-    
+
     word=[query]
     word_embedding = embed_model.encode(word)
     word_embedding=(word_embedding.tolist())[0]
-    
+
+    cosine_compare_list=[]
     max_idx=0
     max_cosine=0.0
     for i in range(len(communitys)):
         community_embedding=communitys[i]["embedding"]
         cosine=calculate_cosine_distance(community_embedding,word_embedding)
-        if(max_cosine<=cosine):
-            max_idx=i
-            max_cosine=cosine
+        cosine_compare_list.append({"communityId":communitys[i]["id"],"cosine":cosine})
 
-    similar_community=communitys[max_idx]
-    
+    cosine_compare_list.sort(key=lambda x:-x["cosine"])
+
     #print("비슷한 커뮤니티")
     #print(similar_community)
-    
+
     node_result=[]
     episodeIdList=[]
-    
-    for i in range(len(similar_community["node"])):
-        nodeId=similar_community["node"][i]
-        with driver.session() as session:
-            query='''
-                MATCH (n)-[r]->(m)
-                WHERE id(n) = $nodeId
-                RETURN n, m, r
-            '''
-            result=session.run(query,nodeId=nodeId)
-            for record in result:
-                episodeIdList.append(record["r"]["episodeId"])
-                node_result.append(record["n"]["name"]+" "+record["m"]["name"]+" "+record["r"]["relationship"])
-                
-    #없으면 반대로
-    if(len(node_result)==0):
-        with driver.session() as session:
-            query='''
-                MATCH (n)-[r]-(m)
-                WHERE id(n) = $nodeId
-                RETURN n, m, r
-            '''
-            result=session.run(query,nodeId=nodeId)
-            for record in result:
-                episodeIdList.append(record["r"]["episodeId"])
-                node_result.append(record["m"]["name"]+" "+record["n"]["name"]+" "+record["r"]["relationship"])
-                
+
+    for i in range(len(cosine_compare_list)//4):
+        community_id=cosine_compare_list[i]["communityId"]
+        for j in range(len(communitys)):
+            if(community_id==communitys[j]["id"]):
+                similar_community=communitys[j]
+                break
+
+        for i in range(len(similar_community["node"])):
+            nodeId=similar_community["node"][i]
+            with driver.session() as session:
+                query='''
+                    MATCH (n)-[r]->(m)
+                    WHERE id(n) = $nodeId
+                    RETURN n, m, r
+                '''
+                result=session.run(query,nodeId=nodeId)
+                for record in result:
+                    episodeIdList.append(record["r"]["episodeId"])
+                    node_result.append(record["n"]["name"]+" "+record["m"]["name"]+" "+record["r"]["relationship"])
+
+        #없으면 반대로
+        if(len(node_result)==0):
+            with driver.session() as session:
+                query='''
+                    MATCH (n)-[r]-(m)
+                    WHERE id(n) = $nodeId
+                    RETURN n, m, r
+                '''
+                result=session.run(query,nodeId=nodeId)
+                for record in result:
+                    episodeIdList.append(record["r"]["episodeId"])
+                    node_result.append(record["m"]["name"]+" "+record["n"]["name"]+" "+record["r"]["relationship"])
+
+    episodeIdList=list(set(episodeIdList))
     return node_result,episodeIdList
 
 
