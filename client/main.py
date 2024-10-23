@@ -171,5 +171,5 @@ if __name__ == "__main__":
     #initialize(userId)
     #insert_first_data(userId)
     # one_chat(userId)
-    #eval(userId)
-    eval_chatgpt()
+    eval(userId)
+    #eval_chatgpt()
