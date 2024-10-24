@@ -116,6 +116,7 @@ def eval(userId):
 
 
 def eval_chatgpt():
+    used_token = 0
     score = 0
     count = 0
     with open("data/sample.txt", 'r', encoding='utf-8') as file:
@@ -142,6 +143,7 @@ def eval_chatgpt():
                     {"role": "user", "content": all_text + "\n" + "B: " + test}
                 ])
 
+            token = AI_response.usage.total_tokens
             AI_response = AI_response.choices[0].message.content
             AI_response = re.search(r'{(.*?)}', AI_response).group(1)
 
@@ -155,21 +157,24 @@ def eval_chatgpt():
 
             result = response.choices[0].message.content
             result = re.search(r'\d+', result).group()
+            used_token += token
             score += int(result)
             count += 1
             print("======= CASE :", count, "=========")
             print("질문 :", test)
             print("정답 :", awnser)
             print("답변 :", AI_response)
-            print("점수 :", result, "\n")
+            print("점수 :", result)
+            print("사용한 토큰 수 :", token, "\n")
 
     print("Eval Complete!\nScore :", score / count)
+    print("Used Token :", used_token / count)
 ###
 
 if __name__ == "__main__":
     userId = "116"
     #initialize(userId)
     #insert_first_data(userId)
-    # one_chat(userId)
+    #one_chat(userId)
     eval(userId)
     #eval_chatgpt()

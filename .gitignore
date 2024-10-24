@@ -9,3 +9,4 @@ venv/
 ./KonwlegeManager/__pycache__/
 ./KnowledgeManager/embedding_model/__pycache__/
 ./episodeManager/__pycache__/
+./used_token.txt

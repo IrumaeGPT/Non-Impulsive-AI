@@ -232,7 +232,7 @@ def getMemoryByKnowlegeGraph(query):
     node_result=[]
     episodeIdList=[]
 
-    for i in range(len(cosine_compare_list)//8):
+    for i in range(len(cosine_compare_list)//25):
         community_id=cosine_compare_list[i]["communityId"]
         for j in range(len(communitys)):
             if(community_id==communitys[j]["id"]):

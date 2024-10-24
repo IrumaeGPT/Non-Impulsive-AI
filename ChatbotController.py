@@ -83,8 +83,7 @@ async def inputUserQuery(userQuery : UserQuery):
 
     for i in range(len(topics)):
         print("Topic : ", topics[i])
-        print("<추출된 지식그래프 텍스트>\n", retrievedKnowldgeMemories[i])
-        print("<추출된 episodeIdList>\n", retrievedEpisodes[i])
+        print("<추출된 지식그래프 텍스트>\n", retrievedKnowldgeMemories[i], "\n\n")
 
     # Generate response and save it to short term memory
     response = await LLMController.generateResponse(query, topics, retrievedKnowldgeMemories, retrievedEpisodes)
