@@ -12,7 +12,7 @@ import os
 
 # server_type=os.getenv('servertype')
 
-client = OpenAI(api_key="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")
+client = OpenAI()
 
 eval_prompt = """다음은 대화 내용에서 기억을 잘하고 있는지 판단하는 테스크를 진행한다.
 질문과 정답이 주어지면 이를 바탕으로 "답변"이 얼마나 정답과 유사한지 0-100 사이의 점수로 매긴다.
@@ -26,8 +26,7 @@ gpt_prompt = """다음 A와 B의 대화를 반영하여 다음의 올 A의 답�
 # Local
 from util import get_data, split_and_format_text
 
-base_url = "http://sw.uos.ac.kr:8000/"
-# base_url = "http://localhost:8000/"
+base_url = "http://localhost:8000/"
 
 ### ChatBotController
 def initialize(userId):
