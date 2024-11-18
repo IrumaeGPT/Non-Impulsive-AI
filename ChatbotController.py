@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from LLMController import LLMController
 # import episodeManager.api.episodeManagerLocal as episodeManager
 from episodeManager import episodeManager as episodeManager
+from episodeManager import ChatingManager as ChatingManager
 from KnowledgeManager import Knowledge as knowledgeManager
 from pydantic import BaseModel
 from typing import List
@@ -66,6 +67,8 @@ async def inputUserQuery(userQuery : UserQuery):
             episodeManager.saveQueryInShortTermMemory(userId, query)
         return {"status": "success", "response":"none"}
 
+    ChatingManager.addChating({"sender_name":userId,"receiver_name":"이루매GPT","content":query})
+    
     knowldgeMemories, episodeMemories = episodeManager.retrieveEpisodes(userId, query)
 
     # Retrieve episodes about query and choose topics
@@ -88,6 +91,7 @@ async def inputUserQuery(userQuery : UserQuery):
 
     # Generate response and save it to short term memory
     response = await LLMController.generateResponse(query, topics, retrievedKnowldgeMemories, retrievedEpisodes)
+    ChatingManager.addChating({"sender_name":"이루매GPT","receiver_name":userId,"content":response})
     #episodeManager.saveQueryInShortTermMemory(userId, response)
 
     return {"status": "success", "response": response, "message": "get response from chatbot"}
@@ -120,3 +124,9 @@ async def reflectNewKnowledge(userId : str, newInfo : str, sourceEpisodeId : int
     print(relationTuples)
     knowledgeManager.updateKnowledgeGraph(relationTuples, sourceEpisodeId)
     return
+
+
+@app.get("/get/chating/{name}")
+async def getChat(name : str):
+    print(name)
+    return ChatingManager.getChatByName(name)
