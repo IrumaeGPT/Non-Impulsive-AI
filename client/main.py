@@ -1,10 +1,19 @@
 import requests, json
 import urllib.parse
 import ast
-import sys
 import re
 from openai import OpenAI
+import sys
 import os
+from dotenv import load_dotenv
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+current_directory = os.path.dirname(os.path.abspath(__file__))
+
+load_dotenv(dotenv_path=current_directory+"/../episodeManager/.env")
+
+apikey = os.getenv("apikey")
 
 # current_directory = os.path.dirname(os.path.abspath(__file__))
 
@@ -81,7 +90,7 @@ def eval(userId):
     with open('data/test.txt', 'r',encoding='utf-8') as file1, open('data/awnser.txt', 'r',encoding='utf-8') as file2:
         print("Evaluation...")
         while True:
-            client = OpenAI(api_key="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")
+            client = OpenAI(api_key=apikey)
             # 각각의 파일에서 한 줄씩 읽기
             test = file1.readline()
             awnser = file2.readline()
@@ -123,7 +132,7 @@ def eval_chatgpt():
     with open('data/test.txt', 'r',encoding='utf-8') as file1, open('data/awnser.txt', 'r',encoding='utf-8') as file2:
         print("Evaluation...")
         while True:
-            client = OpenAI(api_key="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")
+            client = OpenAI(api_key=apikey)
             # 각각의 파일에서 한 줄씩 읽기
             test = file1.readline()
             awnser = file2.readline()
@@ -170,5 +179,5 @@ if __name__ == "__main__":
     #initialize(userId)
     #insert_first_data(userId)
     # one_chat(userId)
-    eval(userId)
+    # eval(userId)
     #eval_chatgpt()
