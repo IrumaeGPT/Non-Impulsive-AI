@@ -6,6 +6,7 @@ from episodeManager import ChatingManager as ChatingManager
 from KnowledgeManager import Knowledge as knowledgeManager
 from pydantic import BaseModel
 from typing import List
+from AuthManager.controller import AuthController
 
 # fastAPI server activate code
 # uvicorn ChatbotController:app --reload
@@ -15,6 +16,8 @@ from typing import List
 # python -m uvicorn ChatbotController:app --reload
 
 app = FastAPI()
+
+app.include_router(AuthController.router, prefix="/auth", tags=["auth"])
 
 class InitialInfos(BaseModel):
     userId : str
