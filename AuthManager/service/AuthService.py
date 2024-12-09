@@ -22,6 +22,7 @@ devuser = os.getenv('devuser')
 devpassword = os.getenv('devpassword')
 host = os.getenv('host')
 server_type=os.getenv('servertype')
+ISSUER = os.getenv("issuer")
 
 if(server_type=="dev"):
     connection = mysql.connector.connect(
@@ -77,6 +78,6 @@ def loginProcess(userId, password):
     
     if not user or not pwd_context.verify(password, user["password"]):
         return {"status":400 , "message":"실패"}
-    accessToken = "Bearer "+create_access_token({"userId":user["user_id"],"name":user["name"],"iss":"IrumaeGPT"})
+    accessToken = "Bearer "+create_access_token({"userId":user["user_id"],"name":user["name"],"iss":ISSUER})
     
     return {"status":200, "message":"성공","aceessToken":accessToken}
