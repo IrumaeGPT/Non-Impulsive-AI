@@ -42,18 +42,20 @@ if connection.is_connected():
 
 cursor = connection.cursor(dictionary=True) #데이터를 가져올 때 dict 형태로 가지고 오기
 
+
 create_table_user = """
 CREATE TABLE IF NOT EXISTS user (
-    id INT AUTO_INCREMENT,
-    name VARCHAR(50) NOT NULL,
-     PRIMARY KEY (id, name)
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id VARCHAR(50) NOT NULL,
+    password VARCHAR(500) NOT NULL,
+    name VARCHAR(50) NOT NULL
 );
 """
-
+    
 create_table_longterm="""
 CREATE TABLE IF NOT EXISTS longterm (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    observation VARCHAR(200) NOT NULL,
+    observation VARCHAR(500) NOT NULL,
     episodeid INT NOT NULL,
     user_id INT,
     CONSTRAINT fk_user_longterm FOREIGN KEY (user_id) REFERENCES user(id)
