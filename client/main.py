@@ -169,6 +169,6 @@ if __name__ == "__main__":
     userId = "116"
     #initialize(userId)
     #insert_first_data(userId)
-    # one_chat(userId)
-    eval(userId)
+    one_chat(userId)
+    # eval(userId)
     #eval_chatgpt()

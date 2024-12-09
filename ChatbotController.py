@@ -88,6 +88,7 @@ async def inputUserQuery(userQuery : UserQuery):
 
     # Generate response and save it to short term memory
     response = await LLMController.generateResponse(query, topics, retrievedKnowldgeMemories, retrievedEpisodes)
+    response = response.replace('"', "")
     #episodeManager.saveQueryInShortTermMemory(userId, response)
 
     return {"status": "success", "response": response, "message": "get response from chatbot"}

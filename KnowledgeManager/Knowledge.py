@@ -11,20 +11,20 @@ load_dotenv(dotenv_path=current_directory+"/../episodeManager/.env")
 host = os.getenv('host')
 neo4juser = os.getenv('neo4juser')
 neo4jpassword = os.getenv('neo4jpassword')
-server_type = os.getenv('servertype')
+# server_type = os.getenv('servertype')
 
 communitys=[]
 
-if(server_type=="dev"):
+# if(server_type=="dev"):
     # Neo4j에 연결하기 위한 드라이버 설정 (dev)
-    uri = "bolt://localhost:7687"  # 기본적으로 Neo4j는 이 포트를 사용
-    username = neo4juser
-    password = neo4jpassword
-else:
-    # Neo4j에 연결하기 위한 드라이버 설정 (local)
-    uri = "bolt://localhost:7687"  # 기본적으로 Neo4j는 이 포트를 사용
-    username = "neo4j"
-    password = "mustrelease1234"
+uri = "bolt://localhost:7687"  # 기본적으로 Neo4j는 이 포트를 사용
+username = neo4juser
+password = neo4jpassword
+# else:
+#     # Neo4j에 연결하기 위한 드라이버 설정 (local)
+#     uri = "bolt://localhost:7687"  # 기본적으로 Neo4j는 이 포트를 사용
+#     username = "neo4j"
+#     password = "mustrelease1234"
 
 #embedding model
 embed_model=model_upload()

@@ -78,7 +78,7 @@ async def extractRelationship(summarized_text : str):
         raise ValueError("관계 추출 부분에서 에러 발생", run.status)
 
 async def chooseTopicToTalk(query, knowldgeMemories, episodeMemories):
-    client = OpenAI(api_key="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")
+    client = OpenAI()
     userPrompt ="<지식>\n" + knowldgeMemories + "\n\n" \
         + "<관련 대화 내용>\n" + episodeMemories \
         + "<입력된 문장>\n" + query
@@ -96,7 +96,7 @@ async def chooseTopicToTalk(query, knowldgeMemories, episodeMemories):
     return topics
 
 async def generateResponse(query : str, topics : list[str], retrievedKnowldgeMemories : list[str], retrievedEpisodes : list[str]):
-    client = OpenAI(api_key="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")
+    client = OpenAI()
     userPrompt = "<입력된 문장>\n" + query + "\n\n"
     for i in range(len(topics)):
         userPrompt += "<답변주제" + str(i) + ">\n" + topics[i] + "\n\n" + \
