@@ -4,6 +4,17 @@ from . import prompt
 import ast
 from . import memories
 import json
+import sys
+import os
+from dotenv import load_dotenv
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+current_directory = os.path.dirname(os.path.abspath(__file__))
+
+load_dotenv(dotenv_path=current_directory+"/../episodeManager/.env")
+
+apikey = os.getenv("apikey")
 
 # Return true if context is changed
 async def checkContextChange(query : str) :
@@ -79,6 +90,7 @@ async def extractRelationship(summarized_text : str):
 
 async def chooseTopicToTalk(query, knowldgeMemories, episodeMemories):
     client = OpenAI()
+
     userPrompt ="<지식>\n" + knowldgeMemories + "\n\n" \
         + "<관련 대화 내용>\n" + episodeMemories \
         + "<입력된 문장>\n" + query
@@ -96,7 +108,9 @@ async def chooseTopicToTalk(query, knowldgeMemories, episodeMemories):
     return topics
 
 async def generateResponse(query : str, topics : list[str], retrievedKnowldgeMemories : list[str], retrievedEpisodes : list[str]):
-    client = OpenAI()
+
+    client = OpenAI(api_key=apikey)
+
     userPrompt = "<입력된 문장>\n" + query + "\n\n"
     for i in range(len(topics)):
         userPrompt += "<답변주제" + str(i) + ">\n" + topics[i] + "\n\n" + \
