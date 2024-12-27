@@ -232,7 +232,7 @@ def getMemoryByKnowlegeGraph(query):
     node_result=[]
     episodeIdList=[]
 
-    for i in range(len(cosine_compare_list)//250):
+    for i in range(len(cosine_compare_list)//500):
         community_id=cosine_compare_list[i]["communityId"]
         for j in range(len(communitys)):
             if(community_id==communitys[j]["id"]):
@@ -253,17 +253,17 @@ def getMemoryByKnowlegeGraph(query):
                     node_result.append(record["n"]["name"]+" "+record["m"]["name"]+" "+record["r"]["relationship"])
 
         #없으면 반대로
-        if(len(node_result)==0):
-            with driver.session() as session:
-                query='''
-                    MATCH (n)-[r]-(m)
-                    WHERE id(n) = $nodeId
-                    RETURN n, m, r
-                '''
-                result=session.run(query,nodeId=nodeId)
-                for record in result:
-                    episodeIdList.append(record["r"]["episodeId"])
-                    node_result.append(record["m"]["name"]+" "+record["n"]["name"]+" "+record["r"]["relationship"])
+        #if(len(node_result)==0):
+        #    with driver.session() as session:
+        #        query='''
+        #            MATCH (n)-[r]-(m)
+        #            WHERE id(n) = $nodeId
+        #            RETURN n, m, r
+        #        '''
+        #        result=session.run(query,nodeId=nodeId)
+        #        for record in result:
+        #            episodeIdList.append(record["r"]["episodeId"])
+        #            node_result.append(record["m"]["name"]+" "+record["n"]["name"]+" "+record["r"]["relationship"])
 
     episodeIdList=list(set(episodeIdList))
     return node_result,episodeIdList

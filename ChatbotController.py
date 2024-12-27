@@ -71,22 +71,22 @@ async def inputUserQuery(userQuery : UserQuery):
     # Retrieve episodes about query and choose topics
     topics =  await LLMController.chooseTopicToTalk(query, '\n'.join(knowldgeMemories), '\n'.join(episodeMemories))
 
-    # Retrieve episodes about each topic
-    retrievedEpisodes = [None] * len(topics)
-    retrievedKnowldgeMemories = [None] * len(topics)
     # 중복된 기억은 모두 제거 하기 위해 이중 반복문
+    episodeIds = set()
     for i in range(len(topics)):
-        retrievedKnowldgeMemories[i], retrievedEpisodes[i] = episodeManager.retrieveEpisodes(userId, topics[i])
-        for j in range(i):
-            retrievedKnowldgeMemories[i] = [value for value in retrievedKnowldgeMemories[i] if value not in retrievedKnowldgeMemories[j]]
-            retrievedEpisodes[i] = [value for value in retrievedEpisodes[i] if value not in retrievedEpisodes[j]]
+        idList = episodeManager.retrieveEpisodeID(topics[i])
+        for item in idList:
+            episodeIds.add(item)
+    print(episodeIds)
+    retrievedEpisodes = episodeManager.retrieveEpisodeByID(userId, episodeIds)
 
-    #for i in range(len(topics)):
-    #    print("Topic : ", topics[i])
-    #    print("<추출된 지식그래프 텍스트>\n", retrievedKnowldgeMemories[i], "\n\n")
+
+    for i in range(len(topics)):
+        print("Topic : ", topics[i])
+        #print("<추출된 지식그래프 텍스트>\n", retrievedKnowldgeMemories[i], "\n\n")
 
     # Generate response and save it to short term memory
-    response = await LLMController.generateResponse(query, topics, retrievedKnowldgeMemories, retrievedEpisodes)
+    response = await LLMController.generateResponse(query, retrievedEpisodes)
     #episodeManager.saveQueryInShortTermMemory(userId, response)
 
     return {"status": "success", "response": response, "message": "get response from chatbot"}
@@ -109,7 +109,7 @@ async def updateAIChatbot(userId : str, memories : str):
     # 에피소드 메니저 우선 비활성화
     episodeId = episodeManager.createEpisode(userId)
     summarized = await LLMController.summarize(memories)
-    #print(summarized)
+    print(summarized)
     await reflectNewKnowledge(userId, summarized, episodeId)
     return
 

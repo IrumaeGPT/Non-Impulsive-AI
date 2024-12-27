@@ -38,17 +38,13 @@ async def checkContextChange(query : str) :
 
 # Summarize input memories
 async def summarize(memories : str):
-    memories = "\n".join(memories)
+    memories = "주어진 대화 내용:\n" + "\n".join(memories)
     response = client.chat.completions.create(
     model="gpt-4o",
     temperature=0.8,
     top_p=0.8,
     messages=[
         {"role": "system", "content": prompt.summarizePrompt},
-        {"role": "user", "content": prompt.summarizeSample},
-        {"role": "assistant", "content": prompt.summarizeAwnser},
-        {"role": "user", "content": prompt.summarizeSample2},
-        {"role": "assistant", "content": prompt.summarizeAwnser2},
         {"role": "user", "content": memories},
     ])
     return response.choices[0].message.content
@@ -97,13 +93,10 @@ async def chooseTopicToTalk(query, knowldgeMemories, episodeMemories):
 
     return topics
 
-async def generateResponse(query : str, topics : list[str], retrievedKnowldgeMemories : list[str], retrievedEpisodes : list[str]):
+async def generateResponse(query : str, retrievedEpisodes):
     client = OpenAI(api_key="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")
     userPrompt = "<입력된 문장>\n" + query + "\n\n"
-    for i in range(len(topics)):
-        userPrompt += "<답변주제" + str(i) + ">\n" + topics[i] + "\n\n" + \
-            "<지식>\n" + '\n'.join(retrievedKnowldgeMemories[i]) + "\n\n" \
-            + "<관련 대화 내용>\n" + '\n'.join(retrievedEpisodes[i]) + '\n\n'
+    userPrompt += "<관련 대화 내용>\n" + '\n'.join(retrievedEpisodes) + '\n\n'
     response = client.chat.completions.create(
     model="gpt-4o",
     temperature=0.5,

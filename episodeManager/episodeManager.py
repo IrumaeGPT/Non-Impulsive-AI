@@ -180,6 +180,26 @@ def retrieveEpisodes(userName,query):
     return knowldgeMemories, episodeMemories
 
 
+###
+def retrieveEpisodeByID(userName,episodeIds):
+    episodeMemories=[]
+    userId=find_userId(userName)
+
+    for value in episodeIds:
+        sql = f"SELECT * FROM longterm WHERE user_id='{userId}' and episodeId='{value}'"
+        cursor.execute(sql)  # 쿼리 실행
+        result = cursor.fetchall()  # 모든 결과 가져오기
+        for item in result:
+            episodeMemories.append(item["observation"])
+
+    return episodeMemories
+
+def retrieveEpisodeID(query):
+    knowldgeMemories, episodeIds = getMemoryByKnowlegeGraph(query)
+
+    return episodeIds
+###
+
 #retrieveEpisodes("냠냠","맥주 먹고싶다..")
 # saveQueryInShortTermMemory("다크시니","나 공놀이함")
 # saveQueryInShortTermMemory("다크시니","나 활어 먹고 싶네")

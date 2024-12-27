@@ -108,14 +108,22 @@ def eval(userId):
                 ])
 
             result = response.choices[0].message.content
-            result = re.search(r'\d+', result).group()
-            score += int(result)
+            match = re.search(r'\d+', result)
+            if match:
+                number = match.group()
+            else:
+                number = 0
+            score += int(number)
             count += 1
             print("======= CASE :", count, "=========")
             print("질문 :", test)
             print("정답 :", awnser)
             print("답변 :", AI_response['response'])
-            print("점수 :", int(result), "\n")
+            print("점수 :", int(number), "\n")
+            print("현재 점수 :", score / count)
+
+            if count > 100:
+                break
 
     print("Eval Complete!\nScore :", score / count)
 
@@ -245,7 +253,7 @@ def eval_chatgpt_rag():
 ###
 
 if __name__ == "__main__":
-    userId = "1208test2"
+    userId = "1227test1"
     #initialize(userId)
     #insert_first_data(userId)
     #one_chat(userId)
