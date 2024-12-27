@@ -75,8 +75,7 @@ async def extractRelationship(summarized_text : str):
 
 async def chooseTopicToTalk(query, knowldgeMemories, episodeMemories):
     client = OpenAI(api_key="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")
-    userPrompt ="<지식>\n" + knowldgeMemories + "\n\n" \
-        + "<입력된 문장>\n" + query
+    userPrompt ="<입력된 문장>\n" + query
     response = client.chat.completions.create(
     model="gpt-4o",
     temperature=0.8,
@@ -107,5 +106,5 @@ async def generateResponse(query : str, retrievedEpisodes):
     ])
 
     with open("used_token.txt", "a") as file:
-        file.write(str(response.usage.total_tokens) + "],")
+        file.write(str(response.usage.total_tokens) + ",")
     return response.choices[0].message.content

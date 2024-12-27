@@ -70,6 +70,7 @@ async def inputUserQuery(userQuery : UserQuery):
 
     # Retrieve episodes about query and choose topics
     topics =  await LLMController.chooseTopicToTalk(query, '\n'.join(knowldgeMemories), '\n'.join(episodeMemories))
+    topics.append(query)
 
     # 중복된 기억은 모두 제거 하기 위해 이중 반복문
     episodeIds = set()

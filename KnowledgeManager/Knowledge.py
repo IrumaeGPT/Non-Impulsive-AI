@@ -102,7 +102,7 @@ def community_detect(tx):
 
     result=tx.run(query)
     for record in result:
-        print(record["nodeId"],record["communityId"])
+        #print(record["nodeId"],record["communityId"])
         query='''
             MATCH (n)
             WHERE id(n) = $nodeId
@@ -154,9 +154,9 @@ def create_similarity(tx):
     for i, (id_a, embedding_a) in enumerate(words):
         for id_b, embedding_b in words[i+1:]:
             distance = calculate_cosine_distance(embedding_a, embedding_b)
-            print(distance)
-            print(id_a)
-            print(id_b)
+            #print(distance)
+            #print(id_a)
+            #print(id_b)
 
             if(distance>0.5):
                 tx.run(
@@ -186,7 +186,7 @@ def updateKnowledgeGraph(relationTuples,sourceEpisodeId):
     #커뮤니티 노드 간선 생성
     for relation in relationTuples:
         if None in relation:
-            print(relation)
+            #print(relation)
             continue
 
         word=[relation[0],relation[2]]
@@ -232,7 +232,7 @@ def getMemoryByKnowlegeGraph(query):
     node_result=[]
     episodeIdList=[]
 
-    for i in range(len(cosine_compare_list)//500):
+    for i in range(len(cosine_compare_list)//400):
         community_id=cosine_compare_list[i]["communityId"]
         for j in range(len(communitys)):
             if(community_id==communitys[j]["id"]):

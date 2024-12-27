@@ -97,7 +97,7 @@ def eval(userId):
                 break
 
             # AI 캐릭터로부터 답변 반환
-            AI_response = chat(userId, "B: " + test, False, True)
+            AI_response = chat(userId, test, False, True)
 
             response = client.chat.completions.create(
                 model="gpt-4o",
@@ -122,7 +122,7 @@ def eval(userId):
             print("점수 :", int(number), "\n")
             print("현재 점수 :", score / count)
 
-            if count > 100:
+            if count >= 43:
                 break
 
     print("Eval Complete!\nScore :", score / count)
@@ -196,10 +196,6 @@ def eval_chatgpt_rag():
             test = file1.readline()
             awnser = file2.readline()
 
-            if count <= 6:
-                count += 1
-                continue
-
             # 두 파일의 끝에 도달하면 반복문을 종료
             if not test and not awnser:
                 break
@@ -247,6 +243,10 @@ def eval_chatgpt_rag():
             print("답변 :", AI_response)
             print("점수 :", result)
             print("사용한 토큰 :", run.usage.total_tokens)
+            print("현재 점수:", score / count)
+
+            if count >= 43:
+                break
 
     print("Eval Complete!\nScore :", score / count)
     print("Used Token :", used_token / count)
