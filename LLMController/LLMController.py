@@ -24,7 +24,7 @@ async def checkContextChange(query : str) :
         messages=messages
     )
     result = response.choices[0].message.content
-    print(result)
+    #print(result)
     if "변화" in result:
         value = memories.copy()
         memories = list()
@@ -78,7 +78,7 @@ async def extractRelationship(summarized_text : str):
         raise ValueError("관계 추출 부분에서 에러 발생", run.status)
 
 async def chooseTopicToTalk(query, knowldgeMemories, episodeMemories):
-    client = OpenAI(api_key="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")
+    client = OpenAI(api_key="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")
     userPrompt ="<지식>\n" + knowldgeMemories + "\n\n" \
         + "<입력된 문장>\n" + query
     response = client.chat.completions.create(
@@ -98,7 +98,7 @@ async def chooseTopicToTalk(query, knowldgeMemories, episodeMemories):
     return topics
 
 async def generateResponse(query : str, topics : list[str], retrievedKnowldgeMemories : list[str], retrievedEpisodes : list[str]):
-    client = OpenAI(api_key="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")
+    client = OpenAI(api_key="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")
     userPrompt = "<입력된 문장>\n" + query + "\n\n"
     for i in range(len(topics)):
         userPrompt += "<답변주제" + str(i) + ">\n" + topics[i] + "\n\n" + \

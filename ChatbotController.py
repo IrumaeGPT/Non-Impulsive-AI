@@ -81,9 +81,9 @@ async def inputUserQuery(userQuery : UserQuery):
             retrievedKnowldgeMemories[i] = [value for value in retrievedKnowldgeMemories[i] if value not in retrievedKnowldgeMemories[j]]
             retrievedEpisodes[i] = [value for value in retrievedEpisodes[i] if value not in retrievedEpisodes[j]]
 
-    for i in range(len(topics)):
-        print("Topic : ", topics[i])
-        print("<추출된 지식그래프 텍스트>\n", retrievedKnowldgeMemories[i], "\n\n")
+    #for i in range(len(topics)):
+    #    print("Topic : ", topics[i])
+    #    print("<추출된 지식그래프 텍스트>\n", retrievedKnowldgeMemories[i], "\n\n")
 
     # Generate response and save it to short term memory
     response = await LLMController.generateResponse(query, topics, retrievedKnowldgeMemories, retrievedEpisodes)
@@ -109,13 +109,13 @@ async def updateAIChatbot(userId : str, memories : str):
     # 에피소드 메니저 우선 비활성화
     episodeId = episodeManager.createEpisode(userId)
     summarized = await LLMController.summarize(memories)
-    print(summarized)
+    #print(summarized)
     await reflectNewKnowledge(userId, summarized, episodeId)
     return
 
 # Reflect new Knowledge
 async def reflectNewKnowledge(userId : str, newInfo : str, sourceEpisodeId : int):
     relationTuples = await LLMController.extractRelationship(newInfo)
-    print(relationTuples)
+    #print(relationTuples)
     knowledgeManager.updateKnowledgeGraph(relationTuples, sourceEpisodeId)
     return
