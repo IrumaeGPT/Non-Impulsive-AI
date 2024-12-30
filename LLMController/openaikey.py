@@ -13,3 +13,4 @@ apikey = os.getenv("apikey")
 
 client = OpenAI(api_key=apikey)
 
+
