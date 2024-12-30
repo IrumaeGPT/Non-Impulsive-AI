@@ -132,7 +132,7 @@ def community_detect(tx):
     embeddings = np.array([item["embedding"] for item in data])
 
     global kmeans
-    kmeans = KMeans(n_clusters=100,random_state=0)
+    kmeans = KMeans(n_clusters=50,random_state=0)
     #kmeans = KMeans(n_clusters=int(math.log2(len(data))),random_state=0)
     kmeans.fit(embeddings)
 

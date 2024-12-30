@@ -108,7 +108,7 @@ async def chooseTopicToTalk(query, knowldgeMemories, episodeMemories):
 
     return topics
 
-async def generateResponse(query : str, topics : list[str], retrievedKnowldgeMemories : list[str], retrievedEpisodes : list[str]):
+async def generateResponse(query : str, retrievedEpisodes : list[str]):
 
     client = OpenAI(api_key=apikey)
 
