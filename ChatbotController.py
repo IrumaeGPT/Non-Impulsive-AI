@@ -2,11 +2,11 @@ from fastapi import FastAPI
 from LLMController import LLMController
 # import episodeManager.api.episodeManagerLocal as episodeManager
 from episodeManager import episodeManager as episodeManager
-from episodeManager import ChatingManager as ChatingManager
+#from episodeManager import ChatingManager as ChatingManager
 from KnowledgeManager import Knowledge as knowledgeManager
 from pydantic import BaseModel
 from typing import List
-from AuthManager.controller import AuthController
+#from AuthManager.controller import AuthController
 
 # fastAPI server activate code
 # uvicorn ChatbotController:app --reload
@@ -17,7 +17,7 @@ from AuthManager.controller import AuthController
 
 app = FastAPI()
 
-app.include_router(AuthController.router, prefix="/auth", tags=["auth"])
+#app.include_router(AuthController.router, prefix="/auth", tags=["auth"])
 
 class InitialInfos(BaseModel):
     userId : str
@@ -70,7 +70,7 @@ async def inputUserQuery(userQuery : UserQuery):
             episodeManager.saveQueryInShortTermMemory(userId, query)
         return {"status": "success", "response":"none"}
 
-    ChatingManager.addChating({"sender_name":userId,"receiver_name":"이루매GPT","content":query})
+    #ChatingManager.addChating({"sender_name":userId,"receiver_name":"이루매GPT","content":query})
 
     knowldgeMemories, episodeMemories = episodeManager.retrieveEpisodes(userId, query)
 
@@ -97,7 +97,7 @@ async def inputUserQuery(userQuery : UserQuery):
 
     response = response.replace('"', "")
 
-    ChatingManager.addChating({"sender_name":"이루매GPT","receiver_name":userId,"content":response})
+    #ChatingManager.addChating({"sender_name":"이루매GPT","receiver_name":userId,"content":response})
 
     #episodeManager.saveQueryInShortTermMemory(userId, response)
 

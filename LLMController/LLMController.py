@@ -87,11 +87,6 @@ async def extractRelationship(summarized_text : str):
 async def chooseTopicToTalk(query, knowldgeMemories, episodeMemories):
     client = OpenAI(api_key=apikey)
     userPrompt ="<입력된 문장>\n" + query
-
-
-
-    userPrompt ="<지식>\n" + knowldgeMemories + "\n\n" \
-        + "<입력된 문장>\n" + query
     response = client.chat.completions.create(
     model="gpt-4o",
     temperature=0.8,
@@ -108,7 +103,7 @@ async def chooseTopicToTalk(query, knowldgeMemories, episodeMemories):
 
     return topics
 
-async def generateResponse(query : str, topics : list[str], retrievedKnowldgeMemories : list[str], retrievedEpisodes : list[str]):
+async def generateResponse(query : str, retrievedEpisodes : list[str]):
 
     client = OpenAI(api_key=apikey)
 

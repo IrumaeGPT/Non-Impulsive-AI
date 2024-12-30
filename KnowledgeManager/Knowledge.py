@@ -27,8 +27,8 @@ kmeans = KMeans(n_clusters=3, random_state=0)
 # else:
     # Neo4j에 연결하기 위한 드라이버 설정 (local)
 uri = "bolt://localhost:7687"  # 기본적으로 Neo4j는 이 포트를 사용
-username = "neo4j"
-password = "mustrelease1234"
+username = neo4juser
+password = neo4jpassword
 
 #embedding model
 embed_model=model_upload()
@@ -132,7 +132,8 @@ def community_detect(tx):
     embeddings = np.array([item["embedding"] for item in data])
 
     global kmeans
-    kmeans = KMeans(n_clusters=int(math.log2(len(data))),random_state=0)
+    #kmeans = KMeans(n_clusters=int(math.log2(len(data))),random_state=0)
+    kmeans = KMeans(n_clusters=1000,random_state=0)
     kmeans.fit(embeddings)
 
     for i, item in enumerate(data):
@@ -283,17 +284,17 @@ def getMemoryByKnowlegeGraph(query):
                 node_result.append(record["n"]["name"]+" "+record["m"]["name"]+" "+record["r"]["relationship"])
 
     #없으면 반대로
-    if(len(node_result)==0):
-        with driver.session() as session:
-            query='''
-                MATCH (n)-[r]-(m)
-                WHERE id(n) = $nodeId
-                RETURN n, m, r
-            '''
-            result=session.run(query,nodeId=nodeId)
-            for record in result:
-                episodeIdList.append(record["r"]["episodeId"])
-                node_result.append(record["m"]["name"]+" "+record["n"]["name"]+" "+record["r"]["relationship"])
+    #if(len(node_result)==0):
+    #    with driver.session() as session:
+    #        query='''
+    #            MATCH (n)-[r]-(m)
+    #            WHERE id(n) = $nodeId
+    #            RETURN n, m, r
+    #        '''
+    #        result=session.run(query,nodeId=nodeId)
+    #        for record in result:
+    #            episodeIdList.append(record["r"]["episodeId"])
+    #            node_result.append(record["m"]["name"]+" "+record["n"]["name"]+" "+record["r"]["relationship"])
 
     episodeIdList=list(set(episodeIdList))
     return node_result,episodeIdList
