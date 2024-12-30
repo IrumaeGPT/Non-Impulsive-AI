@@ -3,6 +3,9 @@ import numpy as np
 from KnowledgeManager.embedding_model.modelUpload import model_upload
 import os
 from dotenv import load_dotenv
+from sklearn.cluster import KMeans
+import numpy as np
+import math
 
 current_directory = os.path.dirname(os.path.abspath(__file__))
 
@@ -11,20 +14,21 @@ load_dotenv(dotenv_path=current_directory+"/../episodeManager/.env")
 host = os.getenv('host')
 neo4juser = os.getenv('neo4juser')
 neo4jpassword = os.getenv('neo4jpassword')
-server_type = os.getenv('servertype')
+# server_type = os.getenv('servertype')
 
 communitys=[]
+kmeans = KMeans(n_clusters=3, random_state=0)
 
-if(server_type=="dev"):
+# if(server_type=="dev"):
     # Neo4j에 연결하기 위한 드라이버 설정 (dev)
-    uri = "bolt://localhost:7687"  # 기본적으로 Neo4j는 이 포트를 사용
-    username = neo4juser
-    password = neo4jpassword
-else:
+# uri = "bolt://localhost:7687"  # 기본적으로 Neo4j는 이 포트를 사용
+# username = neo4juser
+# password = neo4jpassword
+# else:
     # Neo4j에 연결하기 위한 드라이버 설정 (local)
-    uri = "bolt://localhost:7687"  # 기본적으로 Neo4j는 이 포트를 사용
-    username = "neo4j"
-    password = "mustrelease1234"
+uri = "bolt://localhost:7687"  # 기본적으로 Neo4j는 이 포트를 사용
+username = "neo4j"
+password = "mustrelease1234"
 
 #embedding model
 embed_model=model_upload()
@@ -118,24 +122,42 @@ def community_detect(tx):
     ORDER BY community_id, nodeId
     '''
     result = tx.run(query)
+
+    data = []
     for record in result:
+        node_id=record["nodeId"]
+        embedding=record['embedding']
+        data.append({"nodeId":node_id,"embedding":embedding})
+
+    embeddings = np.array([item["embedding"] for item in data])
+
+    global kmeans
+    kmeans = KMeans(n_clusters=int(math.log2(len(data))),random_state=0)
+    kmeans.fit(embeddings)
+
+    for i, item in enumerate(data):
+        item["community_id"] = int(kmeans.labels_[i])
+
+    for record in data:
         node_id=record["nodeId"]
         community_id=record['community_id']
         embedding=record['embedding']
+        isExist=False
         for community in community_local:
-            isExist=False
             if(community["id"]==community_id):
                 #있으면 해야 할 것들
                 isExist=True
                 community["node"].append(node_id)
-                for i in range(len(community["embedding"])):
-                    community["embedding"][i]+=embedding[i]
+                # for i in range(len(community["embedding"])):
+                #     community["embedding"][i]+=embedding[i]
         if(len(community_local)==0 or not isExist):
-            community_local.append({"id":community_id,"node":[node_id],"embedding":embedding})
+            community_local.append({"id":community_id,"node":[node_id]})
 
-    for item in community_local:
-        for i in range(len(item["embedding"])):
-            item["embedding"][i]/=len(item["node"])
+    # for item in community_local:
+    #     for i in range(len(item["embedding"])):
+    #         item["embedding"][i]/=len(item["node"])
+
+    community_local.sort(key=lambda x: x["id"])
 
     for i in range(len(community_local)):
         print(str(community_local[i]["id"])+"번 커뮤니티 노드 번호: " + str(community_local[i]["node"]))
@@ -211,20 +233,26 @@ def updateKnowledgeGraph(relationTuples,sourceEpisodeId):
 def getMemoryByKnowlegeGraph(query):
 
     driver = GraphDatabase.driver(uri, auth=(username, password))
+    global kmeans
 
     word=[query]
     word_embedding = embed_model.encode(word)
     word_embedding=(word_embedding.tolist())[0]
 
-    cosine_compare_list=[]
-    max_idx=0
-    max_cosine=0.0
-    for i in range(len(communitys)):
-        community_embedding=communitys[i]["embedding"]
-        cosine=calculate_cosine_distance(community_embedding,word_embedding)
-        cosine_compare_list.append({"communityId":communitys[i]["id"],"cosine":cosine})
+    word_embedding_2D = [word_embedding]
 
-    cosine_compare_list.sort(key=lambda x:-x["cosine"])
+    print("expected Community")
+    similar_community_id = (kmeans.predict(np.array(word_embedding_2D)))[0]
+
+    cosine_compare_list=[]
+    # max_idx=0
+    # max_cosine=0.0
+    # for i in range(len(communitys)):
+    #     community_embedding=communitys[i]["embedding"]
+    #     cosine=calculate_cosine_distance(community_embedding,word_embedding)
+    #     cosine_compare_list.append({"communityId":communitys[i]["id"],"cosine":cosine})
+
+    # cosine_compare_list.sort(key=lambda x:-x["cosine"])
 
     #print("비슷한 커뮤니티")
     #print(similar_community)
@@ -232,38 +260,40 @@ def getMemoryByKnowlegeGraph(query):
     node_result=[]
     episodeIdList=[]
 
-    for i in range(len(cosine_compare_list)//400):
-        community_id=cosine_compare_list[i]["communityId"]
-        for j in range(len(communitys)):
-            if(community_id==communitys[j]["id"]):
-                similar_community=communitys[j]
-                break
+    # for i in range(len(cosine_compare_list)//250):
+        # community_id=cosine_compare_list[i]["communityId"]
+        # for j in range(len(communitys)):
+        #     if(community_id==communitys[j]["id"]):
+        #         similar_community=communitys[j]
+        #         break
 
-        for i in range(len(similar_community["node"])):
-            nodeId=similar_community["node"][i]
-            with driver.session() as session:
-                query='''
-                    MATCH (n)-[r]->(m)
-                    WHERE id(n) = $nodeId
-                    RETURN n, m, r
-                '''
-                result=session.run(query,nodeId=nodeId)
-                for record in result:
-                    episodeIdList.append(record["r"]["episodeId"])
-                    node_result.append(record["n"]["name"]+" "+record["m"]["name"]+" "+record["r"]["relationship"])
+    similar_community = communitys[similar_community_id]
 
-        #없으면 반대로
-        #if(len(node_result)==0):
-        #    with driver.session() as session:
-        #        query='''
-        #            MATCH (n)-[r]-(m)
-        #            WHERE id(n) = $nodeId
-        #            RETURN n, m, r
-        #        '''
-        #        result=session.run(query,nodeId=nodeId)
-        #        for record in result:
-        #            episodeIdList.append(record["r"]["episodeId"])
-        #            node_result.append(record["m"]["name"]+" "+record["n"]["name"]+" "+record["r"]["relationship"])
+    for i in range(len(similar_community["node"])):
+        nodeId=similar_community["node"][i]
+        with driver.session() as session:
+            query='''
+                MATCH (n)-[r]->(m)
+                WHERE id(n) = $nodeId
+                RETURN n, m, r
+            '''
+            result=session.run(query,nodeId=nodeId)
+            for record in result:
+                episodeIdList.append(record["r"]["episodeId"])
+                node_result.append(record["n"]["name"]+" "+record["m"]["name"]+" "+record["r"]["relationship"])
+
+    #없으면 반대로
+    if(len(node_result)==0):
+        with driver.session() as session:
+            query='''
+                MATCH (n)-[r]-(m)
+                WHERE id(n) = $nodeId
+                RETURN n, m, r
+            '''
+            result=session.run(query,nodeId=nodeId)
+            for record in result:
+                episodeIdList.append(record["r"]["episodeId"])
+                node_result.append(record["m"]["name"]+" "+record["n"]["name"]+" "+record["r"]["relationship"])
 
     episodeIdList=list(set(episodeIdList))
     return node_result,episodeIdList

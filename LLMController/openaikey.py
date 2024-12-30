@@ -1,3 +1,16 @@
 from openai import OpenAI
+import sys
+import os
+from dotenv import load_dotenv
 
-client = OpenAI(api_key="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")
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+current_directory = os.path.dirname(os.path.abspath(__file__))
+
+load_dotenv(dotenv_path=current_directory+"/../episodeManager/.env")
+
+apikey = os.getenv("apikey")
+
+client = OpenAI(api_key=apikey)
+
+
