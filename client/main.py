@@ -24,7 +24,7 @@ from tqdm import tqdm
 
 # server_type=os.getenv('servertype')
 
-client = OpenAI()
+client = OpenAI(api_key=apikey)
 
 
 eval_prompt = """다음은 대화 내용에서 기억을 잘하고 있는지 판단하는 테스크를 진행한다.
@@ -273,8 +273,8 @@ if __name__ == "__main__":
     userId = "1227test1"
     #initialize(userId)
     #insert_first_data(userId)
-    one_chat(userId)
+    #one_chat(userId)
 
-    # eval(userId)
+    eval(userId)
     #eval_chatgpt()
 

@@ -2,11 +2,11 @@ from fastapi import FastAPI
 from LLMController import LLMController
 # import episodeManager.api.episodeManagerLocal as episodeManager
 from episodeManager import episodeManager as episodeManager
-from episodeManager import ChatingManager as ChatingManager
+#from episodeManager import ChatingManager as ChatingManager
 from KnowledgeManager import Knowledge as knowledgeManager
 from pydantic import BaseModel
 from typing import List
-from AuthManager.controller import AuthController
+#from AuthManager.controller import AuthController
 
 # fastAPI server activate code
 # uvicorn ChatbotController:app --reload
@@ -17,7 +17,7 @@ from AuthManager.controller import AuthController
 
 app = FastAPI()
 
-app.include_router(AuthController.router, prefix="/auth", tags=["auth"])
+#app.include_router(AuthController.router, prefix="/auth", tags=["auth"])
 
 class InitialInfos(BaseModel):
     userId : str
@@ -70,34 +70,18 @@ async def inputUserQuery(userQuery : UserQuery):
             episodeManager.saveQueryInShortTermMemory(userId, query)
         return {"status": "success", "response":"none"}
 
-    ChatingManager.addChating({"sender_name":userId,"receiver_name":"이루매GPT","content":query})
+    #ChatingManager.addChating({"sender_name":userId,"receiver_name":"이루매GPT","content":query})
 
-    knowldgeMemories, episodeMemories = episodeManager.retrieveEpisodes(userId, query)
-
-    # Retrieve episodes about query and choose topics
-    topics =  await LLMController.chooseTopicToTalk(query, '\n'.join(knowldgeMemories), '\n'.join(episodeMemories))
-    topics.append(query)
-
-    # 중복된 기억은 모두 제거 하기 위해 이중 반복문
-    episodeIds = set()
-    for i in range(len(topics)):
-        idList = episodeManager.retrieveEpisodeID(topics[i])
-        for item in idList:
-            episodeIds.add(item)
-    print(episodeIds)
-    retrievedEpisodes = episodeManager.retrieveEpisodeByID(userId, episodeIds)
-
-
-    for i in range(len(topics)):
-        print("Topic : ", topics[i])
-        #print("<추출된 지식그래프 텍스트>\n", retrievedKnowldgeMemories[i], "\n\n")
+    idList = episodeManager.retrieveEpisodeID(query)
+    print(idList)
+    retrievedEpisodes = episodeManager.retrieveEpisodeByID(userId, idList)
 
     # Generate response and save it to short term memory
     response = await LLMController.generateResponse(query, retrievedEpisodes)
 
     response = response.replace('"', "")
 
-    ChatingManager.addChating({"sender_name":"이루매GPT","receiver_name":userId,"content":response})
+    #ChatingManager.addChating({"sender_name":"이루매GPT","receiver_name":userId,"content":response})
 
     #episodeManager.saveQueryInShortTermMemory(userId, response)
 
