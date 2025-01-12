@@ -76,12 +76,10 @@ def finish(userId):
 def insert_first_data(userId):
     userId = userId
     #initialize(userId)
-    with open("new_data/user_text_all.txt", 'r', encoding='utf-8') as file:
+    with open("IrumaGPT/data.txt", 'r', encoding='utf-8') as file:
         count = 0
         for line in tqdm(file):
             count += 1
-            #if count < 238:
-            #    continue
             line = line.strip()
             chat(userId, line, True, True)
 
@@ -270,11 +268,11 @@ def eval_chatgpt_rag():
 ###
 
 if __name__ == "__main__":
-    userId = "1227test1"
-    #initialize(userId)
+    userId = "112test2"
+    initialize(userId)
     #insert_first_data(userId)
     #one_chat(userId)
 
-    eval(userId)
+    #eval(userId)
     #eval_chatgpt()
 
