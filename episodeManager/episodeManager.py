@@ -29,19 +29,19 @@ server_type=os.getenv('servertype')
 # )
 # else:
 # MySQL local 서버에 연결
+
 connection = mysql.connector.connect(
-    host=host,       # MySQL 서버 호스트 주소 (로컬이면 'localhost')
-    user=devuser,   # MySQL 사용자 이름
-    password=devpassword, # MySQL 비밀번호
+    host="localhost",       # MySQL 서버 호스트 주소 (로컬이면 'localhost')
+    user=user,   # MySQL 사용자 이름
+    password=password, # MySQL 비밀번호
     database="aicharacter",  # 사용할 데이터베이스 이름
-    port=3306 #포트번호
+    port=4000 #포트번호
 )
 
 if connection.is_connected():
     print("MySQL에 성공적으로 연결되었습니다.")
 
 cursor = connection.cursor(dictionary=True) #데이터를 가져올 때 dict 형태로 가지고 오기
-
 
 create_table_user = """
 CREATE TABLE IF NOT EXISTS user (
@@ -122,7 +122,6 @@ def getShortTermMemories(userName):
         for item in result:
             result_str+=item["observation"]
             result_str+="\n"
-        print(result_str)
 
     return result_str
 

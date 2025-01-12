@@ -28,7 +28,7 @@ kmeans = KMeans(n_clusters=3, random_state=0)
     # Neo4j에 연결하기 위한 드라이버 설정 (local)
 uri = "bolt://localhost:7687"  # 기본적으로 Neo4j는 이 포트를 사용
 username = neo4juser
-password = neo4jpassword
+password = "mustrelease1234"
 
 #embedding model
 embed_model=model_upload()
@@ -132,8 +132,8 @@ def community_detect(tx):
     embeddings = np.array([item["embedding"] for item in data])
 
     global kmeans
-    kmeans = KMeans(n_clusters=50,random_state=0)
-    #kmeans = KMeans(n_clusters=int(math.log2(len(data))),random_state=0)
+    # kmeans = KMeans(n_clusters=50,random_state=0)
+    kmeans = KMeans(n_clusters=int(math.log2(len(data))),random_state=0)
     kmeans.fit(embeddings)
 
     for i, item in enumerate(data):
@@ -242,7 +242,6 @@ def getMemoryByKnowlegeGraph(query):
 
     word_embedding_2D = [word_embedding]
 
-    print("expected Community")
     similar_community_id = (kmeans.predict(np.array(word_embedding_2D)))[0]
 
     cosine_compare_list=[]
@@ -304,6 +303,6 @@ driver = GraphDatabase.driver(uri, auth=(username, password))
 with driver.session() as session:
     session.execute_write(community_detect)
 
-# 드라이버 종료
+#드라이버 종료
 driver.close()
 

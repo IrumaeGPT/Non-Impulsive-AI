@@ -108,12 +108,14 @@ async def chooseTopicToTalk(query, knowldgeMemories, episodeMemories):
 
     return topics
 
-async def generateResponse(query : str, retrievedEpisodes : list[str]):
+async def generateResponse(query : str, retrievedEpisodes : list[str],shortTemrMemories : str):
 
     client = OpenAI(api_key=apikey)
-
+    
     userPrompt = "<입력된 문장>\n" + query + "\n\n"
     userPrompt += "<관련 대화 내용>\n" + '\n'.join(retrievedEpisodes) + '\n\n'
+    userPrompt += shortTemrMemories
+  
     response = client.chat.completions.create(
     model="gpt-4o",
     temperature=0.5,
