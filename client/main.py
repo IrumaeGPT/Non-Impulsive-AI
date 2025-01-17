@@ -206,7 +206,7 @@ def eval_chatgpt_rag():
     with open('new_data/questions.txt', 'r',encoding='utf-8') as file1, open('new_data/answers.txt', 'r',encoding='utf-8') as file2:
         print("Evaluation...")
         while True:
-            client = OpenAI(api_key="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")
+            client = OpenAI(api_key=apikey)
             # 각각의 파일에서 한 줄씩 읽기
             test = file1.readline()
             awnser = file2.readline()
