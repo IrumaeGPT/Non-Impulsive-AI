@@ -9,7 +9,7 @@ import math
 
 current_directory = os.path.dirname(os.path.abspath(__file__))
 
-load_dotenv(dotenv_path=current_directory+"/../episodeManager/.env")
+load_dotenv(dotenv_path=current_directory+"/../globals/.env")
 
 host = os.getenv('host')
 neo4juser = os.getenv('neo4juser')

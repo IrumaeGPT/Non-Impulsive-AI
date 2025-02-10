@@ -1,6 +1,6 @@
 from fastapi import APIRouter,Depends
 from AuthManager.service.AuthService import joinProcess,loginProcess
-from model.User import User,UserLoginRequest
+from AuthManager.model.User import User,UserLoginRequest
 import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))

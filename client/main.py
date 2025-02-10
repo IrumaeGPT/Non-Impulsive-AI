@@ -1,19 +1,18 @@
 import requests, json
-import urllib.parse
-import ast
 import re
 from openai import OpenAI
 import sys
 import os
-# from dotenv import load_dotenv
+from dotenv import load_dotenv
+
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 current_directory = os.path.dirname(os.path.abspath(__file__))
 
-# load_dotenv(dotenv_path=current_directory+"/../episodeManager/.env")
+load_dotenv(dotenv_path=current_directory+"/../episodeManager/.env")
 
-# apikey = os.getenv("apikey")
+apikey = os.getenv("apikey")
 
 from tqdm import tqdm
 
@@ -24,7 +23,7 @@ from tqdm import tqdm
 
 # server_type=os.getenv('servertype')
 
-client = OpenAI(api_key="")
+client = OpenAI(api_key=apikey)
 
 
 eval_prompt = """다음은 대화 내용에서 기억을 잘하고 있는지 판단하는 테스크를 진행한다.
@@ -268,7 +267,7 @@ def eval_chatgpt_rag():
 ###
 
 if __name__ == "__main__":
-    userId = "철수"
+    userId = "세영영"
     # initialize(userId)
     insert_first_data(userId)
 

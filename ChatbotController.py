@@ -1,13 +1,11 @@
 from fastapi import FastAPI
 from LLMController import LLMController
-# import episodeManager.api.episodeManagerLocal as episodeManager
 from episodeManager import episodeManager as episodeManager
-from episodeManager import ChatingManager as ChatingManager
+from chatingManaher import ChatingManager as ChatingManager
 from KnowledgeManager import Knowledge as knowledgeManager
 from pydantic import BaseModel
 from typing import List
 from AuthManager.controller import AuthController
-
 # fastAPI server activate code
 # uvicorn ChatbotController:app --reload
 # uvicorn ChatbotController:app --reload --port 8000 --host 0.0.0.0
@@ -21,7 +19,6 @@ app.include_router(AuthController.router, prefix="/auth", tags=["auth"])
 
 class InitialInfos(BaseModel):
     userId : str
-    # infos : List[str] = []
 
 class UserQuery(BaseModel):
     userId : str

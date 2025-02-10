@@ -1,80 +1,8 @@
-import mysql.connector
-import os
-import sys
-from dotenv import load_dotenv
-from fastapi.responses import JSONResponse
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
+from globals.util import DBUtil as DBUtil
 from KnowledgeManager.Knowledge import getMemoryByKnowlegeGraph
 
-current_directory = os.path.dirname(os.path.abspath(__file__))
-
-load_dotenv(dotenv_path=current_directory+"/.env")
-
-user = os.getenv('user')
-password = os.getenv('password')
-devuser = os.getenv('devuser')
-devpassword = os.getenv('devpassword')
-host = os.getenv('host')
-server_type=os.getenv('servertype')
-
-# if(server_type=="dev"):
-# connection = mysql.connector.connect(
-#         host=host,       # MySQL 서버 호스트 주소 (로컬이면 'localhost')
-#         user=devuser,   # MySQL 사용자 이름
-#         password=devpassword, # MySQL 비밀번호
-#         database="aicharacter",  # 사용할 데이터베이스 이름
-#         port=3306 #포트번호
-# )
-# else:
-# MySQL local 서버에 연결
-
-connection = mysql.connector.connect(
-    host="localhost",       # MySQL 서버 호스트 주소 (로컬이면 'localhost')
-    user=user,   # MySQL 사용자 이름
-    password=password, # MySQL 비밀번호
-    database="aicharacter",  # 사용할 데이터베이스 이름
-    port=4000 #포트번호
-)
-
-if connection.is_connected():
-    print("MySQL에 성공적으로 연결되었습니다.")
-
-cursor = connection.cursor(dictionary=True) #데이터를 가져올 때 dict 형태로 가지고 오기
-
-create_table_user = """
-CREATE TABLE IF NOT EXISTS user (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id VARCHAR(50) NOT NULL,
-    password VARCHAR(500) NOT NULL,
-    name VARCHAR(50) NOT NULL
-);
-"""
-
-create_table_longterm="""
-CREATE TABLE IF NOT EXISTS longterm (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    observation VARCHAR(500) NOT NULL,
-    episodeid INT NOT NULL,
-    user_id INT,
-    CONSTRAINT fk_user_longterm FOREIGN KEY (user_id) REFERENCES user(id)
-);
-
-"""
-
-create_table_shorterm="""
-CREATE TABLE IF NOT EXISTS shorterm (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    observation VARCHAR(200) NOT NULL,
-    user_id INT,
-    CONSTRAINT fk_user_shorterm FOREIGN KEY (user_id) REFERENCES user(id)
-);
-"""
-
-cursor.execute(create_table_user)
-cursor.execute(create_table_longterm)
-cursor.execute(create_table_shorterm)
+connection = DBUtil.connection
+cursor = DBUtil.cursor
 
 def initialUser(userName):
     user_info=[userName]
@@ -91,12 +19,9 @@ def initialUser(userName):
 def saveQueryInShortTermMemory(userName, query):
 
     userId=find_userId(userName=userName)
-    result=[]
-
+   
     if(userId!=-1):
-
         shorterm_info=[query,userId]
-
         sql = "INSERT INTO shorterm (observation,user_id) VALUES (%s,%s)"
 
         cursor.execute(sql,shorterm_info)
@@ -196,15 +121,7 @@ def retrieveEpisodeByID(userName,episodeIds):
     return episodeMemories
 
 def retrieveEpisodeID(query):
-    knowldgeMemories, episodeIds = getMemoryByKnowlegeGraph(query)
+    episodeIds = getMemoryByKnowlegeGraph(query)
 
     return episodeIds
-###
 
-#retrieveEpisodes("냠냠","맥주 먹고싶다..")
-# saveQueryInShortTermMemory("다크시니","나 공놀이함")
-# saveQueryInShortTermMemory("다크시니","나 활어 먹고 싶네")
-# saveQueryInShortTermMemory("다크시니","나는야 까만 고양이")
-# getShortTermMemories("다크시니")
-
-# createEpisode("다크시니")
