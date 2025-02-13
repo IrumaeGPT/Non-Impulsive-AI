@@ -7,7 +7,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 current_directory = os.path.dirname(os.path.abspath(__file__))
 
-load_dotenv(dotenv_path=current_directory+"/../globals/.env")
+load_dotenv(dotenv_path=current_directory+"/../../globals/.env")
 
 apikey = os.getenv("apikey")
 

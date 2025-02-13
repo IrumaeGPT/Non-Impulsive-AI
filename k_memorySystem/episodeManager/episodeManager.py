@@ -121,7 +121,7 @@ def retrieveEpisodeByID(userName,episodeIds):
     return episodeMemories
 
 def retrieveEpisodeID(query):
-    episodeIds = getMemoryByKnowlegeGraph(query)
+    node_result , episodeIds = getMemoryByKnowlegeGraph(query)
 
-    return episodeIds
+    return node_result, episodeIds
 

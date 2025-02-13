@@ -1,20 +1,8 @@
 from .openaikey import client
-from openai import OpenAI
 from . import prompt
 import ast
 from . import memories
 import json
-import sys
-import os
-from dotenv import load_dotenv
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-current_directory = os.path.dirname(os.path.abspath(__file__))
-
-load_dotenv(dotenv_path=current_directory+"/../episodeManager/.env")
-
-apikey = os.getenv("apikey")
 
 # Return true if context is changed
 async def checkContextChange(query : str) :
@@ -35,9 +23,8 @@ async def checkContextChange(query : str) :
         messages=messages
     )
     result = response.choices[0].message.content
-    #print(result)
+
     if "변화" in result:
-        value = memories.copy()
         memories = list()
         memories.append(query)
         return True
@@ -85,7 +72,7 @@ async def extractRelationship(summarized_text : str):
         raise ValueError("관계 추출 부분에서 에러 발생", run.status)
 
 async def chooseTopicToTalk(query, knowldgeMemories, episodeMemories):
-    client = OpenAI(api_key=apikey)
+   
     userPrompt ="<입력된 문장>\n" + query
 
 
@@ -110,8 +97,6 @@ async def chooseTopicToTalk(query, knowldgeMemories, episodeMemories):
 
 async def generateResponse(query : str, retrievedEpisodes : list[str],shortTemrMemories : str):
 
-    client = OpenAI(api_key=apikey)
-    
     userPrompt = "<입력된 문장>\n" + query + "\n\n"
     userPrompt += "<관련 대화 내용>\n" + '\n'.join(retrievedEpisodes) + '\n\n'
     userPrompt += shortTemrMemories
