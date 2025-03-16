@@ -151,5 +151,10 @@ ROOT
 
 ## 👬 프로젝트 팀원 및 역할
 1. 🐶이세영 [@LSe-Yeong](https://github.com/LSe-Yeong)
+- FastAPI를 이용하여 메인 서버 Controller 구현
+- Neo4j GraphDB를 이용하여 챗봇의 기억 데이터 관리
+- MySQL을 이용하여 에피소드 메모리 구현
+- 개발 테스트를 위한 AWS EC2 가상머신 배포
+- 챗봇 웹 서비스 이루매GPT 프론트엔드 개발
 2. 🐰최명재 [@DdingJae418](https://github.com/DdingJae418)
 3. 🐱신지호 [@simpack0513](https://github.com/simpack0513)
