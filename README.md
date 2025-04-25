@@ -152,6 +152,7 @@ ROOT
 ## 👬 프로젝트 팀원 및 역할
 1. 🐶이세영 [@LSe-Yeong](https://github.com/LSe-Yeong)
 - FastAPI를 이용하여 메인 서버 Controller 구현
+- JWT를 이용한 사용자 인증 구현
 - Neo4j GraphDB를 이용하여 챗봇의 기억 데이터 관리
 - MySQL을 이용하여 에피소드 메모리 구현
 - 개발 테스트를 위한 AWS EC2 가상머신 배포
